@@ -1,0 +1,7 @@
+@import url("./assets/bundle.css");
+@import url("./assets/app.min.css");
+@import url("./assets/datatable.min.css");
+.table.table-sm td, .table.table-sm th{
+    font-size: 13px;
+
+}

@@ -1,0 +1,285 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable eqeqeq */
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types';
+import InputGroup from '../Common/InputGroup';
+import Button from '../Common/Button';
+import { PostRequestCallAPI } from '../api/PostRequest';
+import App_url from '../Common/constant';
+import { toast } from 'react-toastify';
+import { useLocation, useNavigate, useParams } from 'react-router';
+
+export default function SubUnitForm(props) {
+    const param = useParams();
+    const navigate = useNavigate();
+    const customer_type = [
+        {title:"Master", label:"Master", value:"Master"},
+        {title:"Branch", label:"Branch", value:"Branch"},
+    ];
+    const Designation = [
+        {title:"Select Designation", label:"Select Designation", value:""},
+        {title:"Owner", label:"Owner", value:"OWNER"},
+        {title:"Director", label:"Director", value:"DIRECTOR"},
+        {title:"Proprietor", label:"Proprietor", value:"PROPRIETOR"},
+        {title:"Manager", label:"Manager", value:"MANAGER"},
+        {title:"Purchase Officer", label:"Purchase Officer", value:"PURCHASE  OFFICER"},
+        {title:"Store Manager", label:"Store Manager", value:"STORE MANAGER"},
+        {title:"Accounts", label:"Accounts", value:"ACCOUNTS"},
+        {title:"Other 1", label:"Other 1", value:"OTHER 1"},
+        {title:"Other 2", label:"Other 2", value:"OTHER 2"},
+        {title:"Sales", label:"Sales", value:"SALES"},
+        {title:"Holding", label:"Holding", value:"HOLDING"},
+    ]
+    const [formData, setFormData] = useState({
+        name:"",
+        contactemail:"",
+        contactname:"",
+        contactdesignation:"",
+        type: "",
+        unit_location: "",
+        unit_address: "",
+        user_name: "",
+        password: "",
+        tally_name: "",
+        contactmobile: "",
+        remarks: "",
+    });
+    const [error, setError] = useState({
+        name:"",
+        contactemail:"",
+        contactname:"",
+        contactdesignation:"",
+        type: "",
+        unit_location: "",
+        unit_address: "",
+        user_name: "",
+        password: "",
+        tally_name: "",
+        contactmobile: "",
+        remarks: "",
+    });
+    const location = useLocation();
+    useEffect(()=>{
+        if(location?.unit_address?.code){
+            setFormData((data)=>({
+                ...data,
+                ...location?.unit_address,
+            }))
+        }
+    },[location?.unit_address?.code]);
+
+    const onChange = (e) =>{
+        if(e.target.type == "checkbox"){
+            setFormData((data)=>({
+                ...data,
+                [e.target.name]:e.target.checked,
+            }))
+        }else{
+            setFormData((data)=>({
+                ...data,
+                [e.target.name]:e.target.value,
+            }))
+        }
+        setError((data)=>({
+            ...data,
+            [e.target.name]:"",
+        }))
+    }
+    const validation = () =>{
+        let val = true;
+        if(formData?.user_name == ""){
+            error.user_name = "Please provide username";
+            val = false;
+        }
+        if(formData?.contactemail == ""){
+            error.contactemail = "Please provide email";
+            val = false;
+        }
+        if(formData?.contactname == ""){
+            error.contactname = "Please provide name";
+            val = false;
+        }
+        if(formData?.contactmobile == ""){
+            error.contactmobile = "Please provide mobile";
+            val = false;
+        }
+
+        setError((data)=>({
+            ...data,
+            ...error
+        }))
+        return val;
+    }
+    const getPayloadCustomer = () =>{
+        const payload = {
+        }
+        if(formData?.contactmobile){
+            payload.contactmobile = formData?.contactmobile;
+        }
+        if(formData?.contactemail){
+            payload.contactemail = formData?.contactemail;
+        }
+        if(formData?.user_name){
+            payload.user_name = formData?.user_name;
+        }
+        if(formData?.contactname){
+            payload.contactname = formData?.contactname;
+        }
+        if(formData?.type){
+            payload.type = formData?.type;
+        }
+        if(formData?.contactdesignation){
+            payload.contactdesignation = formData?.contactdesignation;
+        }
+        if(formData?.contactmobile){
+            payload.contactmobile = formData?.contactmobile;
+        }
+        if(formData?.unit_location){
+            payload.unit_location = formData?.unit_location;
+        }
+        if(formData?.unit_address){
+            payload.unit_address = formData?.unit_address;
+        }
+        if(formData?.password){
+            payload.password = formData?.password;
+        }
+        if(formData?.tally_name){
+            payload.tally_name = formData?.tally_name;
+        }
+        if(formData?.remarks){
+            payload.remarks = formData?.remarks;
+        }
+        return payload;
+    }
+    const onSubmit = async (e) =>{
+        e.preventDefault();
+        if(validation()){
+            const payload = getPayloadCustomer(formData);
+            if(location?.unit_address?.code){
+                payload.request_type = App_url?.API?.UPDATE_CUSTOMER;
+                payload.customer_code = formData?.code;
+                payload.updated_details = getPayloadCustomer(formData);
+            }else{
+                payload.request_type = App_url?.API?.ADD_CUSTOMER;
+            }
+            const response = await PostRequestCallAPI(App_url?.API.CUSTOMER,payload);
+            if(response?.status === 200){
+                toast.success(response?.data?.message);
+                navigate(App_url?.Customer)
+            }else{
+                if(response?.data?.error){
+                    toast.success(response?.data?.error);
+                }
+            }
+            console.log("response", payload)
+        }
+    }
+  return (
+    <div className="card">
+        <div className="card-body">
+            <h6 className='card-title mb-4'>{props?.title}</h6>
+            <form className="row" onSubmit={onSubmit}>
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Name"}
+                    onChange={onChange}
+                    value={formData?.contactname}
+                    name={"contactname"}
+                    error={error?.contactname}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Username"}
+                    onChange={onChange}
+                    value={formData?.user_name}
+                    error={error?.user_name}
+                    name={"user_name"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Password"}
+                    onChange={onChange}
+                    value={formData?.password}
+                    name={"password"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Email"}
+                    onChange={onChange}
+                    value={formData?.contactemail}
+                    error={error?.contactemail}
+                    name={"contactemail"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Mobile"}
+                    onChange={onChange}
+                    value={formData?.contactmobile}
+                    name={"contactmobile"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Designation"}
+                    onChange={onChange}
+                    value={formData?.contactdesignation}
+                    name={"contactdesignation"}
+                    type='select'
+                    option={Designation}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Type"}
+                    onChange={onChange}
+                    value={formData?.type}
+                    name={"type"}
+                    type='select'
+                    option={customer_type}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Remarks"}
+                    onChange={onChange}
+                    value={formData?.remarks}
+                    name={"remarks"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Unit Location"}
+                    onChange={onChange}
+                    value={formData?.unit_location}
+                    name={"unit_location"}
+                    required
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Unit Address"}
+                    onChange={onChange}
+                    value={formData?.unit_address}
+                    name={"unit_address"}
+                    required
+                />
+                <div className='col-12 d-flex align-item-center justify-content-end gap-2 pt-3 pb-3'>
+                    <Button type={"submit"} onClick={onSubmit} variant={"primary"} size={"sm"}>{props?.submitTitle}</Button>
+                    <Button to={`${App_url.CustomerView}/${param.code}`} variant={"outline-danger"} size={"sm"}>Cancel</Button>
+                </div>
+            </form>
+        </div>
+    </div>
+  )
+}
+SubUnitForm.propTypes = {
+    title: PropTypes.any,
+    submitTitle: PropTypes.any
+}
+SubUnitForm.defaultProps = {
+    title:"Add New Customer",
+    submitTitle:"Add Customer"
+}
