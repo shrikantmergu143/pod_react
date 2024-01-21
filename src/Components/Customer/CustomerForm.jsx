@@ -148,7 +148,7 @@ export default function CustomerForm(props) {
                 navigate(App_url?.Customer)
             }else{
                 if(response?.data?.error){
-                    toast.success(response?.data?.error);
+                    toast.error(response?.data?.error);
                 }
             }
             console.log("response", payload)

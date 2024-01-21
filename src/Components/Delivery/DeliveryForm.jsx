@@ -22,38 +22,29 @@ export default function DeliveryForm(props) {
         dcno: "",
         cust_code: "",
         transport_no: "",
-        cust_cont_srno: "",
-        series: "",
-        email: "",
+        cust_sub_unit_code: "",
         transport_type: "",
-        driver: "",
-        warehouse: "",
         manual_dc: "",
         transport_amt: "",
-        tax_amt: "",
         remarks: "",
         payment_status: "",
-        total_amt: "",
+        pono:"",
         item_list:[],
     });
     const [error, setError] = useState({
         dcno: "",
         cust_code: "",
         transport_no: "",
-        cust_cont_srno: "",
-        series: "",
-        email: "",
+        cust_sub_unit_code: "",
         transport_type: "",
-        driver: "",
-        warehouse: "",
         manual_dc: "",
         transport_amt: "",
-        tax_amt: "",
         remarks: "",
+        pono:"",
         payment_status: "",
-        total_amt: "",
         item_list:{}
     });
+    const [selectSubunit, setSelectSubunit] = useState([{label:"Select Sub Unit", value:"", isDisabled:true}])
     const location = useLocation();
     useEffect(()=>{
         callGetCustomer();
@@ -119,6 +110,29 @@ export default function DeliveryForm(props) {
             dispatch(setStoreTransporterOptions());
         }
     }
+    const getSubUnitList = async (value) =>{
+        const payload = {
+            request_type:App_url.API.GET_SUB_UNIT,
+            code:value,
+            page:1,
+            pagination:false
+          }
+          const response = await PostRequestCallAPI(App_url.API.SUB_UNIT, payload);
+          console.log("response", response)
+          if(response?.status === 200 && response?.data?.data?.data){
+            const list = [{label:"Select Sub Unit", value:"", isDisabled:true}]
+            response?.data?.data?.data?.map((item)=>{
+                list?.push({
+                    ...item,
+                    label:item?.contactname,
+                    value:item?.id
+                })
+            });
+            setSelectSubunit(list);
+          }else{
+            setSelectSubunit([{label:"Select Sub Unit", value:"", isDisabled:true}])
+          }
+    }
     const onChange = (e) =>{
         if(e.target.type == "checkbox"){
             setFormData((data)=>({
@@ -126,6 +140,9 @@ export default function DeliveryForm(props) {
                 [e.target.name]:e.target.checked,
             }))
         }else{
+            if(e.target.name == "cust_code"){
+                getSubUnitList(e.target.value);
+            }
             setFormData((data)=>({
                 ...data,
                 [e.target.name]:e.target.value,
@@ -173,60 +190,28 @@ export default function DeliveryForm(props) {
             error.cust_code = "Please select customer";
             val = false;
         }
-        if(formData?.email == ""){
-            error.email = "Please provide email";
-            val = false;
-        }
-        if(formData?.cust_cont_srno == ""){
-            error.cust_cont_srno = "Please provide customer serial no";
+        if(formData?.cust_sub_unit_code == ""){
+            error.cust_sub_unit_code = "Please select sub unit";
             val = false;
         }
         if(formData?.transport_no == ""){
             error.transport_no = "Please select transporter";
             val = false;
         }
-        if(formData?.series == ""){
-            error.series = "Please provide series";
-            val = false;
-        }
         if(formData?.transport_type == ""){
             error.transport_type = "Please provide transport type";
-            val = false;
-        }
-        if(formData?.driver == ""){
-            error.driver = "Please provide driver";
-            val = false;
-        }
-        if(formData?.warehouse == ""){
-            error.warehouse = "Please provide warehouse";
             val = false;
         }
         if(formData?.manual_dc == ""){
             error.manual_dc = "Please provide manual dc";
             val = false;
         }
-        if(formData?.transport_amt == ""){
-            error.transport_amt = "Please provide transport amount";
-            val = false;
-        }
-        if(formData?.tax_amt == ""){
-            error.tax_amt = "Please provide tax amount";
-            val = false;
-        }
-        if(formData?.email == ""){
-            error.email = "Please provide email";
-            val = false;
-        }
         if(formData?.remarks == ""){
             error.remarks = "Please provide remarks";
             val = false;
         }
-        if(formData?.payment_status == ""){
-            error.payment_status = "Please provide payment status";
-            val = false;
-        }
-        if(formData?.total_amt == ""){
-            error.total_amt = "Please provide total amount";
+        if(formData?.pono == ""){
+            error.pono = "Please provide pono";
             val = false;
         }
         if(formData?.item_list?.length<=0 && val){
@@ -247,6 +232,7 @@ export default function DeliveryForm(props) {
     }
     const getPayloadCustomer = () =>{
         const payload = {
+            entered_by:"Master"
         }
         if(formData?.dcno){
             payload.dcno = formData?.dcno;
@@ -257,23 +243,11 @@ export default function DeliveryForm(props) {
         if(formData?.transport_no){
             payload.transport_no = formData?.transport_no;
         }
-        if(formData?.cust_cont_srno){
-            payload.cust_cont_srno = parseFloat(formData?.cust_cont_srno);
-        }
-        if(formData?.series){
-            payload.series = formData?.series;
-        }
-        if(formData?.email){
-            payload.email = formData?.email;
+        if(formData?.cust_sub_unit_code){
+            payload.cust_sub_unit_code = formData?.cust_sub_unit_code;
         }
         if(formData?.transport_type){
             payload.transport_type = formData?.transport_type;
-        }
-        if(formData?.driver){
-            payload.driver = formData?.driver;
-        }
-        if(formData?.warehouse){
-            payload.warehouse = formData?.warehouse;
         }
         if(formData?.manual_dc){
             payload.manual_dc = formData?.manual_dc;
@@ -281,17 +255,11 @@ export default function DeliveryForm(props) {
         if(formData?.transport_amt){
             payload.transport_amt = parseFloat(formData?.transport_amt);
         }
-        if(formData?.tax_amt){
-            payload.tax_amt = parseFloat(formData?.tax_amt);
-        }
         if(formData?.remarks){
             payload.remarks = formData?.remarks;
         }
-        if(formData?.payment_status){
-            payload.payment_status = formData?.payment_status;
-        }
-        if(formData?.total_amt){
-            payload.total_amt = parseFloat(formData?.total_amt);
+        if(formData?.pono){
+            payload.pono = formData?.pono;
         }
         if(formData?.item_list){
             payload.item_list = formData?.item_list?.map((item)=>({
@@ -331,11 +299,7 @@ export default function DeliveryForm(props) {
             console.log("response", payload)
         }
     }
-    const payment_status = [
-        {label:"Select Payment Status", value:"", disabled:true},
-        {label:"Pending", value:"Pending", },
-        {label:"Done", value:"Done",},
-    ]
+
   return (
     <div className="card">
         <div className="card-body">
@@ -363,16 +327,6 @@ export default function DeliveryForm(props) {
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Email"}
-                    placeholder={"Email"}
-                    onChange={onChange}
-                    value={formData?.email}
-                    error={error?.email}
-                    name={"email"}
-                    required
-                />
-                <InputGroup
-                    formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Transporter"}
                     placeholder={"Transporter"}
                     onChange={onChange}
@@ -396,46 +350,18 @@ export default function DeliveryForm(props) {
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Customer serial No."}
-                    placeholder={"Customer serial No."}
+                    label={"Select SubUnit"}
+                    placeholder={"Select SubUnit"}
                     onChange={onChange}
-                    value={formData?.cust_cont_srno}
-                    error={error?.cust_cont_srno}
-                    name={"cust_cont_srno"}
-                    type='number'
+                    value={formData?.cust_sub_unit_code}
+                    error={error?.cust_sub_unit_code}
+                    name={"cust_sub_unit_code"}
+                    option={selectSubunit}
+                    type='select'
                     required
+                    Select
                 />
-                <InputGroup
-                    formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Series"}
-                    placeholder={"Series"}
-                    onChange={onChange}
-                    value={formData?.series}
-                    error={error?.series}
-                    name={"series"}
-                    required
-                />
-                <InputGroup
-                    formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Driver"}
-                    placeholder={"Driver"}
-                    onChange={onChange}
-                    value={formData?.driver}
-                    error={error?.driver}
-                    name={"driver"}
-                    required
-                />
-                <InputGroup
-                    formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Warehouse"}
-                    placeholder={"Warehouse"}
-                    onChange={onChange}
-                    value={formData?.warehouse}
-                    error={error?.warehouse}
-                    name={"warehouse"}
-                    required
-                />
-                <InputGroup
+                {/* <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Transport amount"}
                     placeholder={"Transport amount"}
@@ -445,39 +371,25 @@ export default function DeliveryForm(props) {
                     name={"transport_amt"}
                     type='number'
                     required
-                />
+                /> */}
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
-                    label={"Tax amount"}
-                    placeholder={"Tax amount"}
+                    label={"Remarks"}
+                    placeholder={"Remarks"}
                     onChange={onChange}
-                    value={formData?.tax_amt}
-                    error={error?.tax_amt}
-                    name={"tax_amt"}
-                    type='number'
+                    value={formData?.remarks}
+                    error={error?.remarks}
+                    name={"remarks"}
                     required
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
-                    type='number'
-                    label={"Total amount"}
-                    placeholder={"Total amount"}
+                    label={"PO. no."}
+                    placeholder={"PO. no."}
                     onChange={onChange}
-                    value={formData?.total_amt}
-                    error={error?.total_amt}
-                    name={"total_amt"}
-                    required
-                />
-                <InputGroup
-                    formClassName={"col-12 col-lg-4 col-sm-6"}
-                    type='select'
-                    label={"Payment status"}
-                    placeholder={"Payment status"}
-                    onChange={onChange}
-                    value={formData?.payment_status}
-                    error={error?.payment_status}
-                    option={payment_status}
-                    name={"payment_status"}
+                    value={formData?.pono}
+                    error={error?.pono}
+                    name={"pono"}
                     required
                 />
                 <div className='col-12'>

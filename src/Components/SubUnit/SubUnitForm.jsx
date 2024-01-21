@@ -8,11 +8,14 @@ import { PostRequestCallAPI } from '../api/PostRequest';
 import App_url from '../Common/constant';
 import { toast } from 'react-toastify';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useSelector } from 'react-redux';
 
 export default function SubUnitForm(props) {
+    const { customerDetails } = useSelector((state)=>state?.allReducers);
     const param = useParams();
     const navigate = useNavigate();
     const customer_type = [
+        {title:"Select Type", label:"Select Type", value:""},
         {title:"Master", label:"Master", value:"Master"},
         {title:"Branch", label:"Branch", value:"Branch"},
     ];
@@ -31,6 +34,7 @@ export default function SubUnitForm(props) {
         {title:"Holding", label:"Holding", value:"HOLDING"},
     ]
     const [formData, setFormData] = useState({
+        srno:1,
         name:"",
         contactemail:"",
         contactname:"",
@@ -45,6 +49,7 @@ export default function SubUnitForm(props) {
         remarks: "",
     });
     const [error, setError] = useState({
+        srno:"",
         name:"",
         contactemail:"",
         contactname:"",
@@ -59,15 +64,31 @@ export default function SubUnitForm(props) {
         remarks: "",
     });
     const location = useLocation();
+    console.log("location", location)
     useEffect(()=>{
-        if(location?.unit_address?.code){
+        if(location?.state?.id){
             setFormData((data)=>({
                 ...data,
-                ...location?.unit_address,
+                ...location?.state,
+            }))
+        }else{
+            getUniqueUnit()
+        }
+    },[location?.state?.code]);
+
+    const getUniqueUnit = async () =>{
+        const payload = {
+            request_type:App_url.API.GET_SUB_UNIT_ID,
+            code:param.code
+        }
+        const response = await PostRequestCallAPI(App_url.API.SUB_UNIT, payload);
+        if(response?.status === 200 && response?.data?.data){
+            setFormData((data)=>({
+                ...data,
+                srno:parseFloat(response?.data?.data?.srno)+ 1
             }))
         }
-    },[location?.unit_address?.code]);
-
+    }
     const onChange = (e) =>{
         if(e.target.type == "checkbox"){
             setFormData((data)=>({
@@ -91,19 +112,36 @@ export default function SubUnitForm(props) {
             error.user_name = "Please provide username";
             val = false;
         }
-        if(formData?.contactemail == ""){
-            error.contactemail = "Please provide email";
+        const email = App_url.verifyEmail(formData?.contactemail);
+        if(email){
+            error.contactemail = email;
             val = false;
         }
         if(formData?.contactname == ""){
             error.contactname = "Please provide name";
             val = false;
         }
-        if(formData?.contactmobile == ""){
-            error.contactmobile = "Please provide mobile";
+        const mobile = App_url.validateMobile(formData?.contactmobile); 
+        if(mobile){
+            error.contactmobile = mobile;
             val = false;
         }
-
+        if(formData?.password == "" && !props?.editState){
+            error.password = "Please provide password";
+            val = false;
+        }
+        if(formData?.srno == ""){
+            error.srno = "Please provide srno";
+            val = false;
+        }
+        if(formData?.contactdesignation == ""){
+            error.contactdesignation = "Please select designation";
+            val = false;
+        }
+        if(formData?.type == ""){
+            error.type = "Please select type";
+            val = false;
+        }
         setError((data)=>({
             ...data,
             ...error
@@ -127,6 +165,9 @@ export default function SubUnitForm(props) {
         }
         if(formData?.type){
             payload.type = formData?.type;
+        }
+        if(formData?.srno){
+            payload.srno = formData?.srno;
         }
         if(formData?.contactdesignation){
             payload.contactdesignation = formData?.contactdesignation;
@@ -155,20 +196,22 @@ export default function SubUnitForm(props) {
         e.preventDefault();
         if(validation()){
             const payload = getPayloadCustomer(formData);
-            if(location?.unit_address?.code){
-                payload.request_type = App_url?.API?.UPDATE_CUSTOMER;
-                payload.customer_code = formData?.code;
+            if(location?.state?.id){
+                payload.request_type = App_url?.API?.UPDATE_SUB_UNIT;
+                payload.id = location?.state?.id;
                 payload.updated_details = getPayloadCustomer(formData);
             }else{
-                payload.request_type = App_url?.API?.ADD_CUSTOMER;
+                payload.request_type = App_url?.API?.ADD_SUB_UNIT;
+                payload.entered_by = customerDetails?.name;
             }
-            const response = await PostRequestCallAPI(App_url?.API.CUSTOMER,payload);
+            payload.code = param.code;
+            const response = await PostRequestCallAPI(App_url?.API.SUB_UNIT,payload);
             if(response?.status === 200){
                 toast.success(response?.data?.message);
-                navigate(App_url?.Customer)
+                navigate(`${App_url.CustomerView}/${param.code}`)
             }else{
                 if(response?.data?.error){
-                    toast.success(response?.data?.error);
+                    toast.error(response?.data?.error);
                 }
             }
             console.log("response", payload)
@@ -179,6 +222,16 @@ export default function SubUnitForm(props) {
         <div className="card-body">
             <h6 className='card-title mb-4'>{props?.title}</h6>
             <form className="row" onSubmit={onSubmit}>
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Sr. No."}
+                    onChange={onChange}
+                    value={formData?.srno}
+                    name={"srno"}
+                    error={error?.srno}
+                    type='number'
+                    disabled
+                />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Name"}
@@ -202,8 +255,9 @@ export default function SubUnitForm(props) {
                     label={"Password"}
                     onChange={onChange}
                     value={formData?.password}
+                    error={error?.password}
                     name={"password"}
-                    required
+                    required={props?.editState?false:true}
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
@@ -219,7 +273,9 @@ export default function SubUnitForm(props) {
                     label={"Mobile"}
                     onChange={onChange}
                     value={formData?.contactmobile}
+                    error={error?.contactmobile}
                     name={"contactmobile"}
+                    type='number'
                     required
                 />
                 <InputGroup
@@ -227,6 +283,7 @@ export default function SubUnitForm(props) {
                     label={"Designation"}
                     onChange={onChange}
                     value={formData?.contactdesignation}
+                    error={error?.contactdesignation}
                     name={"contactdesignation"}
                     type='select'
                     option={Designation}
@@ -237,6 +294,7 @@ export default function SubUnitForm(props) {
                     label={"Type"}
                     onChange={onChange}
                     value={formData?.type}
+                    error={error?.type}
                     name={"type"}
                     type='select'
                     option={customer_type}
@@ -248,23 +306,22 @@ export default function SubUnitForm(props) {
                     onChange={onChange}
                     value={formData?.remarks}
                     name={"remarks"}
-                    required
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Unit Location"}
                     onChange={onChange}
                     value={formData?.unit_location}
+                    error={error?.unit_location}
                     name={"unit_location"}
-                    required
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Unit Address"}
                     onChange={onChange}
                     value={formData?.unit_address}
+                    error={error?.unit_address}
                     name={"unit_address"}
-                    required
                 />
                 <div className='col-12 d-flex align-item-center justify-content-end gap-2 pt-3 pb-3'>
                     <Button type={"submit"} onClick={onSubmit} variant={"primary"} size={"sm"}>{props?.submitTitle}</Button>
@@ -277,9 +334,11 @@ export default function SubUnitForm(props) {
 }
 SubUnitForm.propTypes = {
     title: PropTypes.any,
-    submitTitle: PropTypes.any
+    submitTitle: PropTypes.any,
+    editState: PropTypes.bool
 }
 SubUnitForm.defaultProps = {
     title:"Add New Customer",
-    submitTitle:"Add Customer"
+    submitTitle:"Add Customer",
+    editState: false
 }

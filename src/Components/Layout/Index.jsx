@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import Header from './Header'
-import SideMenu from './SideMenu'
 import { useDispatch, useSelector } from 'react-redux';
-import { setShowOffCanvasPopup, setStoreDeliveryList } from '../../redux/actions';
-import SideBar from './SideBar';
+import { setShowOffCanvasPopup, setStoreDeliveryList, setStoreLoader, setStoreTabState } from '../../redux/actions';
+const SideBar = React.lazy(()=>import('./SideBar'));
+const Header = React.lazy(()=>import('./Header'));
+const SideMenu = React.lazy(()=>import('./SideMenu'));
 
 export default function DefaultLayout(props) {
   const dispatch = useDispatch();
-  const { deliveryList, OffCanvasPopup } = useSelector((state)=>state?.allReducers);
+  const { deliveryList, tabState, loader } = useSelector((state)=>state?.allReducers);
 
   useEffect(()=>{
     setState()
@@ -17,21 +17,43 @@ export default function DefaultLayout(props) {
     if(deliveryList === undefined){
       dispatch(setStoreDeliveryList());
     }
-      dispatch(setShowOffCanvasPopup());
+    if(tabState === undefined){
+      dispatch(setStoreTabState());
+    }
+    dispatch(setShowOffCanvasPopup());
+    dispatch(setStoreLoader());
+  }
+  const Loader = () =>{
+    if(!loader){
+      return (
+        <React.Fragment></React.Fragment>
+      )
+    }
+    return(
+     <div className='spinContainer'>
+        <svg class="spinner" viewBox="0 0 50 50">
+          <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+        </svg>
+     </div>
+    )
   }
   return (
-    <div className='layout-wrapper'>
-        <Header/>
-        <div className="content-wrapper">
+    <React.Suspense fallback={<React.Fragment/>}>
+        <div className='layout-wrapper'>
+          <Header/>
+          <div className="content-wrapper">
             <SideMenu/>
             <div className="content-body">
                 <div className="content">
+                  <div className='content-inside'>
                     {props?.children}
+                    <Loader/>
+                  </div>
                 </div>
             </div>
-
-        </div>
-        <SideBar/>
-    </div>
+          </div>
+          <SideBar/>
+      </div>
+    </React.Suspense>
   )
 }

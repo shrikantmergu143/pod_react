@@ -1,16 +1,32 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable eqeqeq */
+/* eslint-disabled no-unused-vars */
+/* eslint-disabled react-hooks/exhaustive-deps */
 import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import App_url from './constant';
+import ReactSelect from 'react-select';
 const removeMultipleBlankSpace = (string, substring) => {
     string = string.replace(/\s+/g, " ");
     return string;
   };
   
 export default function InputGroup(props) {
-    const { name, leftLabel, label, id, size, className, floatStyle, formClassName, iconSize, onClickRightLabel, onClickLeftLabel, rightLabel, leftIcon, rightIcon, error, type, placeholder } = props;
+    const { name, leftLabel, label, id, size, disabled, className, floatStyle, formClassName, iconSize, onClickRightLabel, onClickLeftLabel, rightLabel, leftIcon, rightIcon, error, type, placeholder } = props;
     const uuid = useMemo(()=>App_url.uuid(), [name]);
+    const getSelctValue = () =>{
+        if(props?.is_multi === true){
+        }else{
+            const item = props?.option?.find((item)=>item?.value === props?.value);
+            if(item){
+                return item
+            }else{
+                return null
+            }
+        }
+    }
+    let valueSelect = useMemo(()=>getSelctValue(), [props?.value]);
     const onChange = (e) =>{
         const { name, checked, type } = e.target;
         if(props?.type !== "select"){
@@ -26,44 +42,52 @@ export default function InputGroup(props) {
             return props?.onChange(e, selectOption);
         }
         if (props?.type == "number") {
-            // if(e.target.value != ""){
-            //   e.target.value = parseFloat(e.target.value.replace(/[^0-9.]/g, ''))
-            // }else{
-            //   e.target.value = ""
-            // }
-            // if(e.target.value<0 || e.target.value===""){
-            //   e.target.value = "";
-            // }
             let { value } = e.target;
-    
-            // Remove leading zeroes unless it's the only digit
             value = value.replace(/^0+(?=\d)/, '');
-        
-            // Allow only one dot
             const dotCount = (value.match(/\./g) || []).length;
             if (dotCount > 1) {
-              // More than one dot, remove additional dots
               value = value.slice(0, value.lastIndexOf('.'));
             }
-        
-            // Replace multiple dots with a single dot
             value = value.replace(/\.+/g, '.');
-        
-            // Allow only positive numbers with a dot and at most one dot after digits
             const regex = props?.digit ? /^\d*$/ : /^[0-9]*(\.[0-9]{0,2})?$/;
             const isValid = regex.test(value);
             if(e.target.value == ""){
               e.target.value = '';
             }else if (isValid ) {
               e.target.value = value;
-              // setInputValue(value);
             }else{
               e.target.value = props?.value;
             }
           }
         props?.onChange(e);
     }
+    const onSelect = (e, item) =>{
+        if(props?.is_multi === true){
+        }else{
+            const data = {
+                target:{
+                    name:item?.name,
+                    value:e?.value
+                }
+            }
+            props?.onChange(data);
+        }
+    }
     const InputForm = () =>{
+        if(props?.Select){
+            return (
+                <ReactSelect
+                    classNamePrefix={'input-select'}
+                    className='select-form'
+                    value={valueSelect}
+                    options={props?.option}
+                    onChange={onSelect}
+                    name={props?.name}
+                    id={uuid}
+                    placeholder={props?.placeholder}
+                />
+            )
+        }
         if(type === "select"){
             return (
                 <select
@@ -92,6 +116,8 @@ export default function InputGroup(props) {
                 id={`${uuid}`}
                 autoComplete=''
                 readOnly={props?.readOnly}
+                disabled={disabled}
+                
             />
         )
     }
@@ -165,6 +191,8 @@ InputGroup.propTypes = {
     floatStyle: PropTypes.bool,
     readOnly: PropTypes.bool,
     required: PropTypes.bool,
+    disabled: PropTypes.bool,
+    Select: PropTypes.bool,
 }
 InputGroup.defaultProps = {
     name:"",
@@ -187,6 +215,8 @@ InputGroup.defaultProps = {
     floatStyle:false,
     checked:false,
     required:false,
+    disabled:false,
+    Select:false,
     readOnly:false,
     value:"",
 }

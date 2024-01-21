@@ -20,6 +20,12 @@ export const initialData = {
         records_per_page: 10,
         data: []
     },
+    subUnitList:{
+        total_records: 0,
+        current_page: 1,
+        records_per_page: 10,
+        data: []
+    },
     customerOption:[],
     transporterOption:[],
     OffCanvasPopup:{
@@ -34,7 +40,10 @@ export const initialData = {
         delivery:{},
         delivery_line:[],
         transporter:{}
-    }
+    },
+    loader:true,
+    customerDetails:null,
+    tabState: "details",
 }
 
 export const allReducers = (state = initialData, action) => {
@@ -73,6 +82,26 @@ export const allReducers = (state = initialData, action) => {
             return{
                 ...state,
                 deliveryDetails:action?.payload? action?.payload:initialData?.deliveryDetails
+            }
+        case ActionTypes?.SET_STORE_SUB_UNIT_LIST:
+            return{
+                ...state,
+                subUnitList:action?.payload ? action?.payload : initialData?.subUnitList
+            }
+        case ActionTypes?.SET_STORE_CUSTOMER_DETAILS:
+            return{
+                ...state,
+                customerDetails:action?.payload ? action?.payload : initialData?.customerDetails
+            }
+        case ActionTypes?.SET_STORE_TAB_STATE:
+            return{
+                ...state,
+                tabState:action?.payload ? action?.payload : initialData?.tabState
+            }
+        case ActionTypes?.SET_STORE_LOADER:
+            return{
+                ...state,
+                loader:action?.payload
             }
         default:
         return state;

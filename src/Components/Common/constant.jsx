@@ -11,60 +11,105 @@ function uuidV4() {
     }
     return uuid;
 }
+function verifyEmail(emailAddress) {
+    var sQtext = '[^\\x0d\\x22\\x5c\\x80-\\xff]';
+    var sDtext = '[^\\x0d\\x5b-\\x5d\\x80-\\xff]';
+    var sAtom = '[^\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]+';
+    var sQuotedPair = '\\x5c[\\x00-\\x7f]';
+    var sDomainLiteral = '\\x5b(' + sDtext + '|' + sQuotedPair + ')*\\x5d';
+    var sQuotedString = '\\x22(' + sQtext + '|' + sQuotedPair + ')*\\x22';
+    var sDomain_ref = sAtom;
+    var sSubDomain = '(' + sDomain_ref + '|' + sDomainLiteral + ')';
+    var sWord = '(' + sAtom + '|' + sQuotedString + ')';
+    var sDomain = sSubDomain + '(\\x2e' + sSubDomain + ')*';
+    var sLocalPart = sWord + '(\\x2e' + sWord + ')*';
+    var sAddrSpec = sLocalPart + '\\x40' + sDomain; // complete RFC822 email address spec
+    var sValidEmail = '^' + sAddrSpec + '$'; // as whole string
+  
+    var reValidEmail = new RegExp(sValidEmail);
+    if(emailAddress === ""){
+        return "Please provide email";
+    }
+    if(reValidEmail.test(emailAddress)){
+        return false;
+    }else{
+        return "Please provide valid email";
+    }
+}
+function validateMobile(mobilenumber) {   
+    var regmm='^([0|+[0-9]{1,5})?([7-9][0-9]{9})$';
+    var regmob = new RegExp(regmm);
+    if(mobilenumber === ""){
+        return "Please provide mobile number"
+    }
+    if(regmob.test(mobilenumber)){
+        return false;
+    } else {
+        return "Please provide valid mobile number";
+    }    
+}
 const App_url = {
     Icon:{
-        Search:"/assets/Icon/Search.svg",
-        Product:"/assets/Icon/Product.svg",
-        Notification:"/assets/Icon/Notification.svg",
-        Customer:"/assets/Icon/Customer.svg",
-        Dashboard:"/assets/Icon/Dashboard.svg",
-        Transporter:"/assets/Icon/Transporter.svg",
-        DcEntry:"/assets/Icon/DcEntry.svg",
-        Items:"/assets/Icon/Items.svg",
-        Edit:"/assets/Icon/Edit.svg",
-        Delete:"/assets/Icon/Delete.svg",
-        SideMenu:"/assets/Icon/SideMenu.svg",
-        Eye:"/assets/Icon/Eye.svg",
+        Search: "/assets/Icon/Search.svg",
+        Product: "/assets/Icon/Product.svg",
+        Notification: "/assets/Icon/Notification.svg",
+        Customer: "/assets/Icon/Customer.svg",
+        Dashboard: "/assets/Icon/Dashboard.svg",
+        Transporter: "/assets/Icon/Transporter.svg",
+        DcEntry: "/assets/Icon/DcEntry.svg",
+        Items: "/assets/Icon/Items.svg",
+        Edit: "/assets/Icon/Edit.svg",
+        Delete: "/assets/Icon/Delete.svg",
+        SideMenu: "/assets/Icon/SideMenu.svg",
+        Eye: "/assets/Icon/Eye.svg",
 
     },
-    Dashboard:"/",
-    Customer:"/customer",
-    CustomerView:"/customer/view",
-    AddCustomer:"/customer/add",
-    AddDelivery:"/dc-entry/add",
-    EditDelivery:"/dc-entry/edit",
-    ShowDelivery:"/dc-entry/show",
-    EditCustomer:"/customer/edit",
-    Transporter:"/transporter",
-    AddTransporter:"/transporter/add",
-    EditTransporter:"/transporter/edit",
-    Item:"/item",
-    AddItem:"/item/add",
-    EditItem:"/item/edit",
-    DcEntry:"/dc-entry",
+    Dashboard: "/",
+    Customer: "/customer",
+    CustomerView: "/customer/view",
+    AddCustomer: "/customer/add",
+    AddDelivery: "/dc-entry/add",
+    EditDelivery: "/dc-entry/edit",
+    ShowDelivery: "/dc-entry/show",
+    EditCustomer: "/customer/edit",
+    Transporter: "/transporter",
+    AddTransporter: "/transporter/add",
+    EditTransporter: "/transporter/edit",
+    Item: "/item",
+    AddItem: "/item/add",
+    EditItem: "/item/edit",
+    DcEntry: "/dc-entry",
     Login: "/login",
-    Home:"/",
-    AddSubUnit:"/customer/view",
-    // API_URL:"http://pod.arnichem.co.in/api",
-    // API_URL:"http://arnichem.co.in/pod/api",
-    API_URL:"http://localhost/projects/api",
+    Home: "/",
+    AddSubUnit: "/customer/view",
+    EditSubUnit: "/customer/view",
+    // API_URL: "http://pod.arnichem.co.in/api",
+    // API_URL: "http://arnichem.co.in/pod/api",
+    API_URL: "http://localhost/projects/api",
     API:{
-        CUSTOMER:"CustomerOperation.php",
-        TRANSPORTER:"TransporterOperation.php",
-        DELIVERY:"DeliveryOperation.php",
-        GET_DELIVERY:"GET_DELIVERY",
-        ADD_DELIVERY:"ADD_DELIVERY",
-        ADD_CUSTOMER:"ADD_CUSTOMER",
-        GET_CUSTOMER:"GET_CUSTOMER",
-        GET_CUSTOMER_DETAILS:"GET_CUSTOMER_DETAILS",
-        UPDATE_CUSTOMER:"UPDATE_CUSTOMER",
-        ADD_TRANSPORTER:"ADD_TRANSPORTER",
-        GET_TRANSPORTER:"GET_TRANSPORTER",
-        GET_TRANSPORTER_DETAILS:"GET_TRANSPORTER_DETAILS",
-        GET_DELIVERY_DETAILS:"GET_DELIVERY_DETAILS",
-        UPDATE_TRANSPORTER:"UPDATE_TRANSPORTER",
-        GET_MAX_DELIVERY_ENTRY:"GET_MAX_DELIVERY_ENTRY",
+        CUSTOMER: "CustomerOperation.php",
+        TRANSPORTER: "TransporterOperation.php",
+        DELIVERY: "DeliveryOperation.php",
+        SUB_UNIT: "SubUnitOperation.php",
+        GET_DELIVERY: "GET_DELIVERY",
+        ADD_DELIVERY: "ADD_DELIVERY",
+        ADD_CUSTOMER: "ADD_CUSTOMER",
+        ADD_SUB_UNIT:"ADD_SUB_UNIT",
+        GET_SUB_UNIT_ID:"GET_SUB_UNIT_ID",
+        GET_CUSTOMER: "GET_CUSTOMER",
+        GET_SUB_UNIT: "GET_SUB_UNIT",
+        GET_CUSTOMER_DETAILS: "GET_CUSTOMER_DETAILS",
+        UPDATE_CUSTOMER: "UPDATE_CUSTOMER",
+        UPDATE_SUB_UNIT:"UPDATE_SUB_UNIT",
+        ADD_TRANSPORTER: "ADD_TRANSPORTER",
+        GET_TRANSPORTER: "GET_TRANSPORTER",
+        GET_TRANSPORTER_DETAILS: "GET_TRANSPORTER_DETAILS",
+        GET_DELIVERY_DETAILS: "GET_DELIVERY_DETAILS",
+        UPDATE_TRANSPORTER: "UPDATE_TRANSPORTER",
+        GET_MAX_DELIVERY_ENTRY: "GET_MAX_DELIVERY_ENTRY",
     },
-    uuid:uuidV4
+    uuid:uuidV4,
+    verifyEmail:verifyEmail,
+    validateMobile:validateMobile,
 }
 export default  App_url

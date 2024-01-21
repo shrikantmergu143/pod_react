@@ -3,7 +3,8 @@ import './App.css';
 import './index.css';
 import { Route, Routes } from 'react-router';
 import App_url from './Components/Common/constant';
-import AddSubUnit from './Components/SubUnit/AddSubUnit';
+const AddSubUnit = React.lazy(()=>import('./Components/SubUnit/AddSubUnit'));
+const EditSubUnit = React.lazy(()=>import('./Components/SubUnit/EditSubUnit'));
 const Index = React.lazy(()=>import('./Components/Layout/Index'));
 const LoginPage = React.lazy(()=>import('./Components/Login/LoginPage'));
 const CustomerPage = React.lazy(()=>import('./Components/Customer/CustomerPage'));
@@ -26,6 +27,7 @@ function App() {
         <Route exact path={`${App_url.CustomerView}/:code`}  element={<CustomerView/>} />
         <Route exact path={App_url.AddCustomer}  element={<AddCustomer/>} />
         <Route exact path={`${App_url.AddSubUnit}/:code/add`}  element={<AddSubUnit/>} />
+        <Route exact path={`${App_url.EditSubUnit}/:code/:id`}  element={<EditSubUnit/>} />
         <Route exact path={`${App_url.EditCustomer}/:code`}  element={<EditCustomer/>} />
         <Route exact path={App_url.Transporter}  element={<TransporterPage/>} />
         <Route exact path={App_url.AddTransporter}  element={<AddTransporter/>} />
