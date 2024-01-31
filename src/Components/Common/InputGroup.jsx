@@ -7,6 +7,7 @@ import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import App_url from './constant';
 import ReactSelect from 'react-select';
+import { Form } from 'react-bootstrap';
 const removeMultipleBlankSpace = (string, substring) => {
     string = string.replace(/\s+/g, " ");
     return string;
@@ -66,11 +67,13 @@ export default function InputGroup(props) {
         }else{
             const data = {
                 target:{
+                    ...e,
+                    type:"select",
                     name:item?.name,
                     value:e?.value
                 }
             }
-            props?.onChange(data);
+            props?.onChange(data, item);
         }
     }
     const InputForm = () =>{
@@ -122,6 +125,20 @@ export default function InputGroup(props) {
         )
     }
     const formGroup = () =>{
+        if(props?.type === "switch"){
+            return(
+                <Form.Check
+                    className='custom-switch'
+                    type="switch"
+                    id={uuid}
+                    label={props?.label}
+                    onChange={onChange}
+                    checked={props?.checked}
+                    name={props?.name}
+                    readOnly={props?.readOnly}
+                />
+            )
+        }
         if(type === "checkbox"){
             return(
                 <div className="custom-control custom-checkbox">

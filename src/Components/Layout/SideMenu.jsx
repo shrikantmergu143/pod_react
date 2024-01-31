@@ -35,10 +35,10 @@ export default function SideMenu(props) {
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to={App_url?.Item}>
-                                <Icon attr={App_url?.Icon.Items} />
+                            <NavLink to={App_url?.MasterItem}>
+                                <Icon attr={App_url?.Icon.Box} />
                                 <span className='pl-2'>
-                                    Item
+                                    Master Item
                                 </span>
                             </NavLink>
                         </li>

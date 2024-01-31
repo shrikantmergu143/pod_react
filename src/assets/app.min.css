@@ -3783,9 +3783,12 @@ textarea {
   box-shadow: 0 0 0 0.2rem rgba(41, 49, 52, 0.3);
 }
 
+.form-switch{--min-height:1.4rem; --width-swich:3.4rem;padding-left: calc(var(--width-swich) + 10px);min-height: calc(var(--min-height) + 8px);margin: 0px;display: flex;align-items: center;}
+.form-switch .form-check-input{width: var(--width-swich);margin-left:0px;height: var(--min-height);position: absolute;left: 5px;margin: 0px;}
 .custom-checkbox.custom-range-danger::before {
   background-color: #ea5455;
 }
+.form-switch .form-check-label{font-size: 13px;}
 
 .custom-checkbox.custom-range-danger::-webkit-slider-thumb:active {
   background-color: #f4a6a6;

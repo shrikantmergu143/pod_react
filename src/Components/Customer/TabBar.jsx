@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 import React from "react";
 import PropTypes from "prop-types";
-import { Tab, TabContent } from "react-bootstrap";
+import { Tab } from "react-bootstrap";
 export default function TabBar(props) {
     const TabText = () =>{
         return(

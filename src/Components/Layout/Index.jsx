@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { setShowOffCanvasPopup, setStoreDeliveryList, setStoreLoader, setStoreTabState } from '../../redux/actions';
+import { setShowOffCanvasPopup, setStoreDeliveryList, setStoreLoader, setStoreMasterItemList, setStoreTabState } from '../../redux/actions';
 const SideBar = React.lazy(()=>import('./SideBar'));
 const Header = React.lazy(()=>import('./Header'));
 const SideMenu = React.lazy(()=>import('./SideMenu'));
 
 export default function DefaultLayout(props) {
   const dispatch = useDispatch();
-  const { deliveryList, tabState, loader } = useSelector((state)=>state?.allReducers);
+  const { deliveryList, tabState, loader, masterItemList } = useSelector((state)=>state?.allReducers);
 
   useEffect(()=>{
     setState()
@@ -19,6 +19,9 @@ export default function DefaultLayout(props) {
     }
     if(tabState === undefined){
       dispatch(setStoreTabState());
+    }
+    if(masterItemList === undefined){
+      dispatch(setStoreMasterItemList());
     }
     dispatch(setShowOffCanvasPopup());
     dispatch(setStoreLoader());

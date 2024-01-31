@@ -26,6 +26,12 @@ export const initialData = {
         records_per_page: 10,
         data: []
     },
+    masterItemList:{
+        total_records: 0,
+        current_page: 1,
+        records_per_page: 10,
+        data: []
+    },
     customerOption:[],
     transporterOption:[],
     OffCanvasPopup:{
@@ -87,6 +93,11 @@ export const allReducers = (state = initialData, action) => {
             return{
                 ...state,
                 subUnitList:action?.payload ? action?.payload : initialData?.subUnitList
+            }
+        case ActionTypes?.SET_STORE_MASTER_ITEM_LIST:
+            return{
+                ...state,
+                masterItemList:action?.payload ? action?.payload : initialData?.masterItemList
             }
         case ActionTypes?.SET_STORE_CUSTOMER_DETAILS:
             return{

@@ -3,6 +3,8 @@ import './App.css';
 import './index.css';
 import { Route, Routes } from 'react-router';
 import App_url from './Components/Common/constant';
+const EditMasterItem = React.lazy(()=>import('./Components/MasterItem/EditMasterItem'));
+const AddMasterItem = React.lazy(()=>import('./Components/MasterItem/AddMasterItem'));
 const AddSubUnit = React.lazy(()=>import('./Components/SubUnit/AddSubUnit'));
 const EditSubUnit = React.lazy(()=>import('./Components/SubUnit/EditSubUnit'));
 const Index = React.lazy(()=>import('./Components/Layout/Index'));
@@ -16,6 +18,7 @@ const EditTransporter = React.lazy(()=>import('./Components/Transporter/EditTran
 const DeliveryEntryPage = React.lazy(()=>import('./Components/Delivery/DeliveryEntryPage'));
 const AddDeliveryPage = React.lazy(()=>import('./Components/Delivery/AddDeliveryPage'));
 const ShowDelivery = React.lazy(()=>import('./Components/Delivery/ShowDelivery'));
+const MasterItemPage = React.lazy(()=>import('./Components/MasterItem/MasterItemPage'));
 const CustomerView = React.lazy(()=>import('./Components/Customer/CustomerView'));
 
 function App() {
@@ -23,7 +26,10 @@ function App() {
     <React.Suspense fallback={<React.Fragment/>}>
       <Routes>
         <Route exact path={App_url.Dashboard}  element={<Index/>} />
-        <Route exact path={App_url.Customer}  element={<CustomerPage/>} />
+        <Route exact path={App_url.Customer}  element={<CustomerPage />} />
+        <Route exact path={App_url?.MasterItem}  element={<MasterItemPage />} />
+        <Route exact path={App_url?.AddMasterItem}  element={<AddMasterItem />} />
+        <Route exact path={`${App_url.EditMasterItem}/:id`}  element={<EditMasterItem/>} />
         <Route exact path={`${App_url.CustomerView}/:code`}  element={<CustomerView/>} />
         <Route exact path={App_url.AddCustomer}  element={<AddCustomer/>} />
         <Route exact path={`${App_url.AddSubUnit}/:code/add`}  element={<AddSubUnit/>} />

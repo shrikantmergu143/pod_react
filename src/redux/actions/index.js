@@ -10,6 +10,7 @@ export const ActionTypes = {
     SET_STORE_CUSTOMER_DETAILS:"SET_STORE_CUSTOMER_DETAILS",
     SET_STORE_TAB_STATE:"SET_STORE_TAB_STATE",
     SET_STORE_LOADER:"SET_STORE_LOADER",
+    SET_STORE_MASTER_ITEM_LIST:"SET_STORE_MASTER_ITEM_LIST",
 
 }
 export const setStoreCustomerList = (payload) =>{
@@ -17,6 +18,9 @@ export const setStoreCustomerList = (payload) =>{
 }
 export const setStoreTransporterList = (payload) =>{
     return{ type:ActionTypes?.SET_STORE_TRANSPORTER_LIST, payload:payload }  //User Login
+}
+export const setStoreMasterItemList = (payload) =>{
+    return{ type:ActionTypes?.SET_STORE_MASTER_ITEM_LIST, payload:payload }  //User Login
 }
 export const setStoreDeliveryList = (payload) =>{
     return{ type:ActionTypes?.SET_STORE_DELIVERY_LIST, payload:payload }  //User Login
