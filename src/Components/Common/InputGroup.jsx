@@ -85,9 +85,11 @@ export default function InputGroup(props) {
                     value={valueSelect}
                     options={props?.option}
                     onChange={onSelect}
+                    onInputChange={props?.onInput}
                     name={props?.name}
                     id={uuid}
                     placeholder={props?.placeholder}
+                    inputValue={props?.inputValue}
                 />
             )
         }
@@ -191,6 +193,7 @@ InputGroup.propTypes = {
     onChange: PropTypes.func,
     onClickRightLabel: PropTypes.func,
     onClickLeftLabel: PropTypes.func,
+    onInput: PropTypes.func,
     option: PropTypes.any,
     label: PropTypes.any,
     leftLabel: PropTypes.any,
@@ -204,6 +207,7 @@ InputGroup.propTypes = {
     iconSize: PropTypes.any,
     error: PropTypes.any,
     value: PropTypes.any,
+    inputValue: PropTypes.any,
     checked: PropTypes.bool,
     floatStyle: PropTypes.bool,
     readOnly: PropTypes.bool,
@@ -216,6 +220,7 @@ InputGroup.defaultProps = {
     onChange:()=>{},
     onClickRightLabel:()=>{},
     onClickLeftLabel:()=>{},
+    onInput:()=>{},
     option:[],
     label:"",
     leftLabel:"",
@@ -236,4 +241,5 @@ InputGroup.defaultProps = {
     Select:false,
     readOnly:false,
     value:"",
+    inputValue:"",
 }

@@ -29,6 +29,7 @@ export default function DeliveryForm(props) {
         remarks: "",
         payment_status: "",
         pono:"",
+        master_item:"",
         item_list:[],
     });
     const [error, setError] = useState({
@@ -45,11 +46,20 @@ export default function DeliveryForm(props) {
         item_list:{}
     });
     const [selectSubunit, setSelectSubunit] = useState([{label:"Select Sub Unit", value:"", isDisabled:true}])
+    const [abortController, setAbortController] = useState(new AbortController());
+    const [MasterSelect, setMasterSelect] = useState([]);
     const location = useLocation();
     useEffect(()=>{
         callGetCustomer();
         callGetTransporter();
         callGetDeliveryMax();
+        return () => {
+            // Cancel the ongoing API request when the component unmounts or when dependencies change
+            abortController.abort();
+      
+            // Create a new AbortController for the next fetch
+            setAbortController(new AbortController());
+          };      
     },[]);
     useEffect(()=>{
         if(location?.state?.code){
@@ -143,6 +153,7 @@ export default function DeliveryForm(props) {
             if(e.target.name == "cust_code"){
                 getSubUnitList(e.target.value);
             }
+            console.log("item", e.target)
             setFormData((data)=>({
                 ...data,
                 [e.target.name]:e.target.value,
@@ -299,6 +310,36 @@ export default function DeliveryForm(props) {
             console.log("response", payload)
         }
     }
+    const fetchMasterItem = async (e) =>{
+        const signal = abortController.signal;
+        const payload = {
+            request_type:App_url.API.GET_MASTER_LIST,
+            pagination:false,
+            search:e,
+        }
+        const response = await PostRequestCallAPI(App_url.API.MasterItem, payload, false, { signal });
+        if (response?.status === 200) {
+            const responseData = response?.data?.data?.map((item)=>({
+                ...item,
+                label:`${item?.product_name}`,
+                value:item?.item_code,
+            }))
+            setMasterSelect(responseData);
+        }else{
+            setMasterSelect([]);
+        }
+    }
+    const onInput = (e) =>{
+        if(e!=""){
+            fetchMasterItem(e);
+        }else{
+            setMasterSelect([]);
+        }
+        setFormData((item)=>({
+            ...item,
+            master_item:e
+        }));
+    }
 
   return (
     <div className="card">
@@ -392,6 +433,23 @@ export default function DeliveryForm(props) {
                     name={"pono"}
                     required
                 />
+                <div className='row'>
+                    <InputGroup
+                        formClassName={"col-12 col-lg-4 col-sm-6"}
+                        label={"Master Item"}
+                        placeholder={"Master Item"}
+                        type='select'
+                        onChange={onChange}
+                        onInput={onInput}
+                        inputValue={formData?.master_item}
+                        value={formData?.master_item}
+                        error={error?.master_item}
+                        name={"master_item"}
+                        option={MasterSelect}
+                        required
+                        Select
+                    />
+                </div>
                 <div className='col-12'>
                     <ItemList formData={formData} setFormData={setFormData} error={error?.item_list} setError={setError} />
                 </div>
