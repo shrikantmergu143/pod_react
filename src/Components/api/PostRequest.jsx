@@ -1,6 +1,11 @@
 import App_url from "../Common/constant";
 
-export const PostRequestCallAPI = async (apiurl, payload, access_token, {signal}={}) => {
+export const PostRequestCallAPI = async (apiurl, payload, access_token) => {
+  const controller = new AbortController();
+
+  const CancelToken = window.axios.CancelToken;
+  const source = CancelToken.source();
+
     const headers = {
       'Accept':"application/json",
     }
@@ -9,10 +14,11 @@ export const PostRequestCallAPI = async (apiurl, payload, access_token, {signal}
     }
     const getResponse = window.axios.post(`${App_url?.API_URL}/${apiurl}`,payload,{
       headers:headers,
-      signal:signal
+      cancelToken: source.token
     }).then(function (result) {
       return result;
-    })
+    }).catch((e)=>e.response);
+    controller.abort();
 
     return getResponse;
 };

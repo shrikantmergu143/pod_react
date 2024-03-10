@@ -6,10 +6,11 @@ import DefaultLayout from '../Layout/Index'
 import App_url from '../Common/constant';
 import { PostRequestCallAPI } from '../api/PostRequest';
 import { useDispatch, useSelector } from 'react-redux';
-import { setStoreDeliveryDetails, setStoreDeliveryList } from '../../redux/actions';
+import { setStoreDeliveryDetails, setStoreDeliveryList, setStoreLoader } from '../../redux/actions';
 import CustomTable from '../Common/CustomTable';
 import { useNavigate, useParams } from 'react-router';
 import { Link } from 'react-router-dom';
+import Icon from '../Common/Icon';
 
 export default function ShowDelivery() {
     const param = useParams();
@@ -21,6 +22,7 @@ export default function ShowDelivery() {
         }
     },[])
     const getDeliveryDetails = async (id) =>{
+        dispatch(setStoreLoader(true))
         const payload = {
             request_type:App_url.API.GET_DELIVERY_DETAILS,
             delivery_code:id
@@ -31,23 +33,240 @@ export default function ShowDelivery() {
         }else{
             dispatch(setStoreDeliveryDetails());
         }
+        dispatch(setStoreLoader(false))
     }
     const getTotalTables = () =>{
-        let total = 0;
+        let total_amount = 0;
         let qty = 0;
-        let total_tax = 0;
+        let total_pack = 0;
         let qty_value = 0;
         deliveryDetails?.delivery_line?.map((item)=>{
             qty = qty + parseFloat(item?.quantity);
-            qty_value = qty_value + parseFloat(item?.quantity_volume)
+            qty_value = qty_value + parseFloat(item?.rate);
+            if(item?.item_type === "oil"){
+                total_pack = total_pack + (item?.pack_size * item?.quantity)
+            }
         });
         console.log("qty_value", qty_value)
         return {
-            qty:qty,
-            qty_value:qty_value,
+            qty: qty,
+            qty_value: qty_value,
+            total_pack: total_pack,
+            total_amount: deliveryDetails?.delivery?.transport_amt
         }
     }
-    const itemTotal = useMemo(getTotalTables, [deliveryDetails?.delivery_line])
+    const DateFormat = (dateString) =>{
+        if(!dateString){
+            return null;
+        }
+        const dateObject = new Date(dateString);
+
+        const formattedDate = new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+          }).format(dateObject);
+          
+          // Remove comma after year
+          const formattedDateWithoutComma = formattedDate?.replace(/,/, '');
+          
+          console.log(formattedDateWithoutComma);
+        return formattedDateWithoutComma;
+    }
+    const itemTotal = useMemo(getTotalTables, [deliveryDetails?.delivery_line]);
+    const TableOrderItem = () =>{
+        let type = "";
+        if(deliveryDetails?.delivery_line?.length>0){
+            type = deliveryDetails?.delivery_line[0]?.item_type
+        }
+        if(type === "Tyre"){
+            return(
+                <React.Fragment>
+                    <tr align='center '>
+                        <td  className=' border-x'>
+                            <b className='td-column'>MATREIAL TYPE</b>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>Masterial Discription</span>
+                        </td>
+                        <td  className=' border-x'>
+                            <b className='td-column'>Qnty</b>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>APPX VALUE</span>
+                        </td>
+                        <td rowSpan={deliveryDetails?.delivery_line?.length+2} colSpan={2} className='bt-0 bb-0 border-x'>
+                            <span className='td-column'></span>
+                        </td>
+                    </tr>
+                    {deliveryDetails?.delivery_line?.map((item, index)=>(
+                        <React.Fragment key={index?.toString()}>
+                            <tr align='center'>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>
+                                        <b>{item?.item_type}</b>
+                                    </span>
+                                </td>
+                                <td  className=' border-x text-wrap'>
+                                    <span className='td-column'>{item?.product_name}</span>
+                                </td>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>{item?.quantity}</span>
+                                </td>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>{item?.total_amount}</span>
+                                </td>
+                            </tr>
+                        </React.Fragment>
+                    ))}
+                    <tr align='center'>
+                        <td  className=' border-x'>
+                            <b className='td-column'>Total no. of item</b>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'></span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>{itemTotal?.qty}</span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>{parseFloat(itemTotal?.total_amount).toFixed(2)}</span>
+                        </td>
+                    </tr>
+                </React.Fragment>
+            )
+        }
+        if(type === "Battery"){
+            return(
+                <React.Fragment>
+                    <tr align='center'>
+                        <td  className=' border-x'>
+                            <b className='td-column'>Material Discription</b>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>Discription</span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>Pack size</span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>Qnty</span>
+                        </td>
+                        <td rowSpan={deliveryDetails?.delivery_line?.length+2} colSpan={2} className='bt-0 bb-0 border-x'>
+                            <span className='td-column'></span>
+                        </td>
+                    </tr>
+                    {deliveryDetails?.delivery_line?.map((item, index)=>(
+                        <React.Fragment key={index?.toString()}>
+                            <tr align='center'>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>
+                                        <b>{item?.item_type}</b>
+                                    </span>
+                                </td>
+                                <td  className=' border-x text-wrap'>
+                                    <span className='td-column'>{item?.product_name}</span>
+                                </td>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>{item?.quantity}</span>
+                                </td>
+                                <td  className=' border-x'>
+                                    <span className='td-column'>{item?.total_amount}</span>
+                                </td>
+                            </tr>
+                        </React.Fragment>
+                    ))}
+                    <tr align='center'>
+                        <td  className=' border-x'>
+                            <b className='td-column'>Total no. of item</b>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'></span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>{itemTotal?.qty}</span>
+                        </td>
+                        <td  className=' border-x'>
+                            <span className='td-column'>{parseFloat(itemTotal?.total_amount).toFixed(2)}</span>
+                        </td>
+                    </tr>
+                </React.Fragment>
+            )
+        }
+        return(
+            <React.Fragment>
+                <tr align='center'>
+                    <td  className=' border-x'>
+                        <b className='td-column'>Box/Bucket/Drum</b>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>Qnty</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>Masterial Discription</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>Pack size</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>Qnty</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>ltr</span>
+                    </td>
+                </tr>
+                {deliveryDetails?.delivery_line?.map((item, index)=>(
+                    <React.Fragment key={index?.toString()}>
+                        <tr align='center'>
+                            <td  className=' border-x'>
+                                <span className='td-column'>
+                                    <b>{item?.item_type}</b>
+                                </span>
+                            </td>
+                            <td  className=' border-x'>
+                                <span className='td-column'>{item?.quantity}</span>
+                            </td>
+                            <td  className=' border-x text-wrap'>
+                                <span className='td-column'>{item?.product_name}</span>
+                            </td>
+                            <td  className=' border-x'>
+                                <span className='td-column'>{item?.pack_size}</span>
+                            </td>
+                            <td  className=' border-x'>
+                                <span className='td-column'>{item?.quantity}</span>
+                            </td>
+                            <td  className=' border-x'>
+                                <span className='td-column'>{item?.pack_size * item?.quantity}</span>
+                            </td>
+                        </tr>
+                    </React.Fragment>
+                ))}
+                <tr align='center'>
+                    <td  className=' border-x'>
+                        <b className='td-column'>Total no. of item</b>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>{itemTotal?.qty}</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>APPX VALUE</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>{itemTotal?.qty_value}</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>Total</span>
+                    </td>
+                    <td  className=' border-x'>
+                        <span className='td-column'>{itemTotal?.total_pack}</span>
+                    </td>
+                </tr>
+            </React.Fragment>
+        )
+    }
     return (
         <DefaultLayout>
             <div className="page-header">
@@ -56,84 +275,104 @@ export default function ShowDelivery() {
                         <li className="breadcrumb-item">
                             <Link to={"/"} >New Software</Link>
                         </li>
-                        <li className="breadcrumb-item active" aria-current="page">Delivery Report</li>
+                        <li className="breadcrumb-item active" aria-current="page">
+                        <Link to={App_url.DcEntry} >Delivery Report</Link>
+                        </li>
+                        <li className="breadcrumb-item active" aria-current="page">{deliveryDetails?.delivery?.manual_dc}</li>
                     </ol>
                 </nav>
             </div>
             <div className="card">
                 <div className="card-body">
-                    <h6 className='card-title'>DC no. {deliveryDetails?.delivery?.dcno}</h6>
-                    <table className='table table-dc table-sm table-border'>
+                    <div className='d-flex align-items-center'>
+                        <h6 className='card-title mb-0'>DC no. {deliveryDetails?.delivery?.manual_dc}</h6>
+                        <Icon size={"md"} onClick={()=>window.print()} title={"Print Report"} classNameButton={"ms-auto"} button attr={App_url.Icon.Print} />
+                    </div>
+                    <table className='table table-dc table-sm table-border text-wrap font-sm'>
                         <tbody>
                         <tr>
                             <td className=' border-x'>
-                                <span className='td-column'>Delivery Challan</span>
+                                <span className='td-column'>
+                                    <b>Delivery Challan</b>
+                                </span>
                             </td>
                             <td colSpan={3} className='border-x bb-0'></td>
-                            <td className=' border-x'>
-                                <span className='td-column'>Copy-Transporter</span>
+                            <td colSpan={2} className=' border-x br-1'>
+                                <span className='td-column'>
+                                    <b>Copy-Transporter</b>
+                                </span>
                             </td>
-                            <td colSpan={1} className='bt-1 br-1' ></td>
+                            {/* <td  className='bt-1 br-1' ></td> */}
                         </tr>
                         <tr>
                             <td className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.customer?.name}</span>
+                                <b className='td-column'>{deliveryDetails?.customer?.name}</b>
                             </td>
                             <td className=' border-x'>
-                                <span className='td-column'>GST NO-{deliveryDetails?.customer?.GST_no}</span>
+                                <span className='td-column'>
+                                    <b>GST NO-{deliveryDetails?.customer?.GST_no}</b>
+                                </span>
                             </td>
                             <td colSpan={4} className='border-x  bt-0'></td>
                         </tr>
                         <tr>
                             <td colSpan={4} className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.customer?.address1}</span>
+                                <span className='td-column'>{deliveryDetails?.customer?.address}</span>
                             </td>
                             <td colSpan={2} className=' border-x'>
-                                <span className='td-column'>Contact Person, {deliveryDetails?.customer?.phone1} {deliveryDetails?.customer?.phone2?`${deliveryDetails?.customer?.phone2},`:""} </span>
+                                <span className='td-column'>
+                                    <b>Contact Person {deliveryDetails?.customer_contact?.contactname}, {deliveryDetails?.customer?.phone1} {deliveryDetails?.customer?.phone2?`${deliveryDetails?.customer?.phone2},`:""}</b>
+                                </span>
                             </td>
                         </tr>
                         <tr>
                             <td colSpan={5} className=' border-x' align='center'>
-                                <span className='td-column'>DC No.- {deliveryDetails?.delivery?.dcno}</span>
+                                <span className='td-column '>
+                                    <b className='text-underline'>DC No.- {deliveryDetails?.delivery?.manual_dc}</b>
+                                </span>
                             </td>
                             <td colSpan={1} className='border-x bb-0 bt-0'></td>
                         </tr>
                         <tr>
                             <td className=' border-x' align='center'>
-                                <span className='td-column'>Company Name</span>
+                                <span className='td-column'>
+                                    <b>Company Name</b>
+                                </span>
+                            </td>{console.log("deliveryDetails?.customer_contact", deliveryDetails?.customer_contact)}
+                            <td className=' border-x' align='center'>
+                                <span className='td-column'>{deliveryDetails?.customer_contact?.company_name}</span>
                             </td>
                             <td className=' border-x' align='center'>
-                                <span className='td-column'>{deliveryDetails?.customer?.name}</span>
-                            </td>
-                            <td className=' border-x' align='center'>
-                                <span className='td-column'>GST NO-{deliveryDetails?.customer?.GST_no}</span>
+                                <b className='td-column b'>GST NO-{deliveryDetails?.customer?.GST_no}</b>
                             </td>
                             <td colSpan={4} className='border-x bb-0 bt-0'></td>
                         </tr>
                         <tr align='center'>
                             <td  className=' border-x' >
-                                <span className='td-column'>City</span>
+                                <span className='td-column bold'>City</span>
                             </td>
                             <td  className=' border-x' >
-                                <span className='td-column'>{deliveryDetails?.customer?.city}</span>
+                                <span className='td-column'>{deliveryDetails?.customer_contact?.city}</span>
                             </td>
                             <td  className=' border-x' >
-                                <span className='td-column'>State</span>
+                                <span className='td-column bold'>State</span>
                             </td>
                             <td  className=' border-x' >
-                                <span className='td-column'>{deliveryDetails?.customer?.state}</span>
+                                <span className='td-column'>{deliveryDetails?.customer_contact?.state}</span>
                             </td>
                             <td colSpan={2} className='br-1'></td>
                         </tr>
-                        <tr className='mh-4' align='center'>
+                        <tr className='' align='center'>
                             <td  className=' border-x'>
-                                <span className='td-column'></span>
+                                <span className='td-column bold'>P O No</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'></span>
+                                <span className='td-column bold'>
+                                    {deliveryDetails?.customer_contact?.contactmobile ? deliveryDetails?.customer_contact?.contactmobile :"-"}
+                                </span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>Transport Name</span>
+                                <span className='td-column bold'>Transport Name</span>
                             </td>
                             <td  className=' border-x'>
                                 <span className='td-column'>{deliveryDetails?.transporter?.name}</span>
@@ -142,40 +381,40 @@ export default function ShowDelivery() {
                         </tr>
                         <tr align='center'>
                             <td  className=' border-x'>
-                                <span className='td-column'>Contact Person</span>
+                                <span className='td-column bold'>Contact Person</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.transporter?.phone1}</span>
+                                <span className='td-column'>{deliveryDetails?.customer_contact?.contactname}</span>
                             </td>
                             <td  className=' border-x'>
                                 <span className='td-column'>Transport LR. No.</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.transporter?.code}</span>
+                                <span hidden className='td-column'>{deliveryDetails?.transporter?.code}</span>
                             </td>
                             <td colSpan={2} className='br-1'></td>
                         </tr>
-                        <tr className='mh-4' align='center'>
+                        <tr className='' align='center'>
                             <td  className=' border-x'>
-                                <span className='td-column'>Delivery Challan Date</span>
+                                <span className='td-column bold'>Delivery Challan Date</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.delivery?.date_added}</span>
+                                <span className='td-column'>{DateFormat(deliveryDetails?.delivery?.date_added)}</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>Destination</span>
+                                <span className='td-column bold'>Destination</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.delivery?.address1}</span>
+                                <span className='td-column'>{deliveryDetails?.customer_contact?.unit_address}</span>
                             </td>
                             <td colSpan={2} className='br-1'></td>
                         </tr>
                         <tr align='center'>
                             <td  className=' border-x'>
-                                <span className='td-column'>Distaptch Date</span>
+                                <span className='td-column bold'>Distaptch Date</span>
                             </td>
                             <td  className=' border-x'>
-                                <span className='td-column'>{deliveryDetails?.delivery?.date_added}</span>
+                                <span className='td-column'>{DateFormat(deliveryDetails?.delivery?.date_added)}</span>
                             </td>
                             <td  className=' border-x'>
                                 <span className='td-column'></span>
@@ -186,72 +425,9 @@ export default function ShowDelivery() {
                             <td colSpan={2} className='br-1'></td>
                         </tr>
                         <tr className='mh-4'>
-                            <td colSpan={6} className='bl-1 br-1 bb-1'></td>
+                            <td colSpan={6} className='bl-1 br-1 bb-0'></td>
                         </tr>
-                        <tr align='center'>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Box/Bucket/Drum</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Qnty</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Masterial Discription</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Pack size</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Tims</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>KG</span>
-                            </td>
-                        </tr>
-                        {deliveryDetails?.delivery_line?.map((item, index)=>(
-                            <React.Fragment key={index?.toString()}>
-                                <tr align='center'>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>{item?.item}</span>
-                                    </td>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>{item?.quantity}</span>
-                                    </td>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>-</span>
-                                    </td>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>{item?.quantity_volume}</span>
-                                    </td>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>{item?.line_total}</span>
-                                    </td>
-                                    <td  className=' border-x'>
-                                        <span className='td-column'>-</span>
-                                    </td>
-                                </tr>
-                            </React.Fragment>
-                        ))}
-                         <tr align='center'>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Total no. of item</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>{itemTotal?.qty}</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>APPX VALUE</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>{itemTotal?.qty_value}</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>Total</span>
-                            </td>
-                            <td  className=' border-x'>
-                                <span className='td-column'>-</span>
-                            </td>
-                        </tr>
+                        <TableOrderItem/>
                         <tr>
                             <td className=' border-x'>
                                 <span className='td-column'>E & O.E.</span>
@@ -272,19 +448,19 @@ export default function ShowDelivery() {
                         </tr>
                         <tr>
                             <td colSpan={3} className=' border-x'>
-                                <span className='td-column'>2. Our Responsibility ceases when goods are delivered</span>
+                                <span className='td-column'>2. Our Responsibillity ceases when goods are delivered</span>
                             </td>
                             <td colSpan={3} className='br-1'></td>
                         </tr>
                         <tr>
                             <td colSpan={3} className=' border-x'>
-                                <span className='td-column'>3. Please return Duplicate copy duty & good</span>
+                                <span className='td-column'>3. Please return Duplicate copy duly signed</span>
                             </td>
                             <td colSpan={3} className='br-1'></td>
                         </tr>
                         <tr>
                             <td colSpan={3} className=' border-x'>
-                                <span className='td-column'>4. All disputes subject to Pune junction</span>
+                                <span className='td-column'>4. All disputes subject to Pune Jurisdiction</span>
                             </td>
                             <td colSpan={3} className='br-1'></td>
                         </tr>
@@ -298,13 +474,13 @@ export default function ShowDelivery() {
                             <td colSpan={3} className='border-x bt-0 bl-1 bb-0 br-0'></td>
                             <td colSpan={3} className='br-1 bb-1'></td>
                         </tr>
-                        <tr className=''>
+                        <tr className='' align="center">
                             <td className=' border-x bt-1'>
-                                <span className='td-column'>Received By</span>
+                                <span className='td-column bold'>Received By</span>
                             </td>
                             <td colSpan={2} className='border-x bt-0'></td>
                             <td colSpan={3} className=' border-x'>
-                                <span className='td-column'>For {deliveryDetails?.customer?.name}</span>
+                                <span className='td-column bold'>For {deliveryDetails?.customer?.name}</span>
                             </td>
                         </tr>
                         </tbody>

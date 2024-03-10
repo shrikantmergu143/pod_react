@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 /* eslint-disable no-mixed-operators */
 function uuidV4() {
     let uuid = '', i, random;
@@ -48,6 +50,11 @@ function validateMobile(mobilenumber) {
         return "Please provide valid mobile number";
     }    
 }
+const requestValidate = (response) =>{
+    if(response?.data?.error){
+        toast.error(response?.data?.error);
+    }
+}
 const App_url = {
     Icon:{
         Search: "/assets/Icon/Search.svg",
@@ -62,9 +69,12 @@ const App_url = {
         Delete: "/assets/Icon/Delete.svg",
         SideMenu: "/assets/Icon/SideMenu.svg",
         Box: "/assets/Icon/Box.svg",
+        Eye: "/assets/Icon/Eye.svg",
+        DownIcon: "/assets/Icon/DownIcon.svg",
+        Print: "/assets/Icon/Print.svg",
 
     },
-    Dashboard: "/",
+    Dashboard: "/dashboard",
     Customer: "/customer",
     CustomerView: "/customer/view",
     AddCustomer: "/customer/add",
@@ -97,6 +107,7 @@ const App_url = {
         GET_DELIVERY: "GET_DELIVERY",
         ADD_DELIVERY: "ADD_DELIVERY",
         ADD_CUSTOMER: "ADD_CUSTOMER",
+        UPDATE_DELIVERY: "UPDATE_DELIVERY",
         ADD_SUB_UNIT:"ADD_SUB_UNIT",
         GET_SUB_UNIT_ID:"GET_SUB_UNIT_ID",
         GET_CUSTOMER: "GET_CUSTOMER",
@@ -118,5 +129,6 @@ const App_url = {
     uuid:uuidV4,
     verifyEmail:verifyEmail,
     validateMobile:validateMobile,
+    requestValidate:requestValidate,
 }
 export default  App_url

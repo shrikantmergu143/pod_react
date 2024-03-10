@@ -7,6 +7,10 @@ export default function ItemListContent(props) {
     const { formData, error, onChangeItem } = props;
     const onChange = (e) =>{
         const oldData = formData;
+        if(e.target.name === "quantity"){
+            let qty = parseFloat(e.target.value) || 0;
+            oldData.total_amount = parseFloat(formData?.rate * qty).toFixed(2);
+        }
         onChangeItem({
             ...oldData,
             [e.target.name]:e.target.value
@@ -25,12 +29,23 @@ export default function ItemListContent(props) {
             <div className='row mr-0 pr-4 d-flex-center'>
                 <InputGroup
                     formClassName={"col-12 col-lg-3 col-sm-6 m-0"}
-                    label={"Item"}
-                    placeholder={"Item"}
+                    label={"Product Name"}
+                    placeholder={"Product Name"}
                     onChange={onChange}
-                    value={formData?.item}
-                    error={error[`item${props?.index}`]}
-                    name={"item"}
+                    value={formData?.product_name}
+                    error={error[`product_name${props?.index}`]}
+                    name={"product_name"}
+                    required
+                />
+                 <InputGroup
+                    formClassName={"col-12 col-lg-3 col-sm-6 m-0"}
+                    label={"Rate Valume"}
+                    placeholder={"Rate Valume"}
+                    onChange={onChange}
+                    value={formData?.rate}
+                    error={error[`rate${props?.index}`]}
+                    name={"rate"}
+                    type='number'
                     required
                 />
                 <InputGroup
@@ -46,24 +61,14 @@ export default function ItemListContent(props) {
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-3 col-sm-6 m-0"}
-                    label={"Qty Valume"}
-                    placeholder={"Qty Valume"}
-                    onChange={onChange}
-                    value={formData?.quantity_volume}
-                    error={error[`quantity_volume${props?.index}`]}
-                    name={"quantity_volume"}
-                    type='number'
-                    required
-                />
-                <InputGroup
-                    formClassName={"col-12 col-lg-3 col-sm-6 m-0"}
                     label={"Total"}
                     placeholder={"Total"}
                     onChange={onChange}
-                    value={formData?.line_total}
-                    error={error[`line_total${props?.index}`]}
-                    name={"line_total"}
+                    value={formData?.total_amount}
+                    error={error[`total_amount${props?.index}`]}
+                    name={"total_amount"}
                     type='number'
+                    readOnly
                     required
                 />
                 <Icon onClick={props?.deleteVariation} button className={"sm "} classNameButton={"btn-danger position-right-center"} attr={App_url.Icon.Delete}/>

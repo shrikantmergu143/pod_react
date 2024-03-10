@@ -73,7 +73,7 @@ export default function InputGroup(props) {
                     value:e?.value
                 }
             }
-            props?.onChange(data, item);
+            props?.onChange(data, e);
         }
     }
     const InputForm = () =>{

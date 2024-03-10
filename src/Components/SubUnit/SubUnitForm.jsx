@@ -47,6 +47,10 @@ export default function SubUnitForm(props) {
         tally_name: "",
         contactmobile: "",
         remarks: "",
+        company_name: "",
+        state: "",
+        city: "",
+        pincode: "",
     });
     const [error, setError] = useState({
         srno:"",
@@ -62,6 +66,10 @@ export default function SubUnitForm(props) {
         tally_name: "",
         contactmobile: "",
         remarks: "",
+        company_name: "",
+        state: "",
+        city: "",
+        pincode: "",
     });
     const location = useLocation();
     console.log("location", location)
@@ -121,6 +129,10 @@ export default function SubUnitForm(props) {
             error.contactname = "Please provide name";
             val = false;
         }
+        if(formData?.company_name == ""){
+            error.company_name = "Please provide company name";
+            val = false;
+        }
         const mobile = App_url.validateMobile(formData?.contactmobile); 
         if(mobile){
             error.contactmobile = mobile;
@@ -150,9 +162,24 @@ export default function SubUnitForm(props) {
     }
     const getPayloadCustomer = () =>{
         const payload = {
+            pincode:"",
+            state:"",
+            city:"",
         }
         if(formData?.contactmobile){
             payload.contactmobile = formData?.contactmobile;
+        }
+        if(formData?.company_name){
+            payload.company_name = formData?.company_name;
+        }
+        if(formData?.pincode){
+            payload.pincode = formData?.pincode;
+        }
+        if(formData?.city){
+            payload.city = formData?.city;
+        }
+        if(formData?.state){
+            payload.state = formData?.state;
         }
         if(formData?.contactemail){
             payload.contactemail = formData?.contactemail;
@@ -231,6 +258,15 @@ export default function SubUnitForm(props) {
                     error={error?.srno}
                     type='number'
                     disabled
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Company Name"}
+                    onChange={onChange}
+                    value={formData?.company_name}
+                    name={"company_name"}
+                    error={error?.company_name}
+                    required
                 />
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
@@ -322,6 +358,30 @@ export default function SubUnitForm(props) {
                     value={formData?.unit_address}
                     error={error?.unit_address}
                     name={"unit_address"}
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"State"}
+                    onChange={onChange}
+                    value={formData?.state}
+                    error={error?.state}
+                    name={"state"}
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"City"}
+                    onChange={onChange}
+                    value={formData?.city}
+                    error={error?.city}
+                    name={"city"}
+                />
+                <InputGroup
+                    formClassName={"col-12 col-lg-4 col-sm-6"}
+                    label={"Pincode"}
+                    onChange={onChange}
+                    value={formData?.pincode}
+                    error={error?.pincode}
+                    name={"pincode"}
                 />
                 <div className='col-12 d-flex align-item-center justify-content-end gap-2 pt-3 pb-3'>
                     <Button type={"submit"} onClick={onSubmit} variant={"primary"} size={"sm"}>{props?.submitTitle}</Button>

@@ -9563,7 +9563,7 @@ body.header-dark:not(.dark) .header .dropdown-menu {
           flex: 1;
   padding: 20px;
   padding-top: 70px;
-  padding-left: 340px;
+  padding-left: 246px;
   padding-bottom: 0;
 }
 
@@ -10219,7 +10219,7 @@ small {
 .navigation {
   background-color: white;
   z-index: 998;
-  width: 320px;
+  width: 226px;
   box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
   position: fixed;
   display: -webkit-box;
@@ -10325,7 +10325,7 @@ small {
   display: flex;
   -webkit-box-align: center;
           align-items: center;
-  padding: 10px 30px;
+  padding: 10px 15px;
   color: #505050;
   font-size: 14px;
   -webkit-transition: all 0.3s;

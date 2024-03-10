@@ -7,11 +7,16 @@ export default function Icon(props) {
             <i onClick={props?.onClick} className={`common_icon font-${props?.size} ${props?.className}`} style={{"--icon":`url(${props?.attr})`}} />
         )
     }
-  if(props?.button){
-    return(
+    const ButtonIcon = () =>{
+      return(
         <button onClick={props?.onClick} title={props?.title} data-toggle="tooltip" className={`btn btn-icon btn-${props?.hover?"hover":""} btn-${props?.size} ${props?.classNameButton}`}>
             {IconAttr()}
         </button>
+      )
+    }
+  if(props?.button){
+    return(
+      ButtonIcon()
     )
   }
   return (

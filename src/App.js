@@ -1,8 +1,9 @@
 import React from 'react';
 import './App.css';
 import './index.css';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import App_url from './Components/Common/constant';
+import EditDeliveryPage from './Components/Delivery/EditDeliveryPage';
 const EditMasterItem = React.lazy(()=>import('./Components/MasterItem/EditMasterItem'));
 const AddMasterItem = React.lazy(()=>import('./Components/MasterItem/AddMasterItem'));
 const AddSubUnit = React.lazy(()=>import('./Components/SubUnit/AddSubUnit'));
@@ -25,6 +26,7 @@ function App() {
   return (
     <React.Suspense fallback={<React.Fragment/>}>
       <Routes>
+        <Route index exact path={"/"}  element={<Navigate to={App_url.Dashboard}/>} />
         <Route exact path={App_url.Dashboard}  element={<Index/>} />
         <Route exact path={App_url.Customer}  element={<CustomerPage />} />
         <Route exact path={App_url?.MasterItem}  element={<MasterItemPage />} />
@@ -38,6 +40,7 @@ function App() {
         <Route exact path={App_url.Transporter}  element={<TransporterPage/>} />
         <Route exact path={App_url.AddTransporter}  element={<AddTransporter/>} />
         <Route exact path={App_url.DcEntry}  element={<DeliveryEntryPage/>} />
+        <Route exact path={`${App_url.EditDelivery}/:delivery_no`}  element={<EditDeliveryPage/>} />
         <Route exact path={`${App_url.ShowDelivery}/:delivery_no`}  element={<ShowDelivery/>} />
         <Route exact path={App_url.AddDelivery}  element={<AddDeliveryPage/>} />
         <Route exact path={`${App_url.EditTransporter}/:code`}  element={<EditTransporter/>} />

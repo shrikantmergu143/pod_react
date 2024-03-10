@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Icon from './Icon';
 import App_url from './constant';
@@ -6,9 +6,16 @@ import InputGroup from './InputGroup';
 import { Link } from 'react-router-dom';
 import Button from './Button';
 import PaginationPage from './PaginationPage';
+import { Collapse } from 'react-bootstrap';
 
 const CustomTable = (props) => {
-    const { recordData, onChange, Filter, current_page, columnNames, dataItems } = props
+    const { recordData, onChange, Filter, current_page, columnNames, dataItems } = props;
+    const [state, setState] = useState("")
+        // Helper function to get nested properties
+    const getNestedProperty = (obj, keys) => {
+        return keys.split('.').reduce((acc, key) => acc?.[key], obj);
+    };
+
     const TableItem = ({recordKey, item, index}) =>{
         const startIdx = parseFloat(current_page - 1) * parseFloat(props?.pagination?.records_per_page);
         const listNumber = startIdx + index + 1
@@ -29,7 +36,7 @@ const CustomTable = (props) => {
                         <span>{item[recordKey.toLowerCase()]}</span>
                     </Link>
                 )}
-                {recordKey !== 'Name' && <span>{item[recordKey.toLowerCase()]}</span>}
+                {recordKey !== 'Name' && <span>{getNestedProperty(item, recordKey.toLowerCase())}</span>}
             </React.Fragment>
         )
     }
@@ -78,6 +85,9 @@ const CustomTable = (props) => {
                                 <table id="recent-orders" className="table table-sm table-striped ">
                                     <thead>
                                         <tr>
+                                        {props?.collabeData?.length>0 ?(
+                                            <th></th>
+                                        ):null}
                                         {columnNames.map((columnName, index) => (
                                             <th key={index}>{columnName}</th>
                                         ))}
@@ -88,24 +98,59 @@ const CustomTable = (props) => {
                                         {dataItems?.length>0?(
                                             <React.Fragment>
                                                 {dataItems?.map((item, index) => (
-                                                    <tr key={index}>
-                                                        {recordData.map((recordKey, idx) => (
-                                                            <td key={idx}>
-                                                                <TableItem recordKey={recordKey} index={index} item={item} />
+                                                    <React.Fragment key={index}>
+                                                        <tr >
+                                                            {props?.collabeData?.length>0 ?(
+                                                                <td>
+                                                                    <Icon attr={App_url.Icon.DownIcon} onClick={()=>setState(state === index?"":index)} title="Default tooltip" data-toggle="tooltip"    button className={"xxsm "} classNameButton={`xxsm rounded border ${state === index?"r-180":""}`} />
+                                                                </td>
+                                                            ):null}
+                                                            {recordData.map((recordKey, idx) => (
+                                                                <td key={idx}>
+                                                                    <TableItem recordKey={recordKey} index={index} item={item} />
+                                                                </td>
+                                                            ))}
+                                                            <td>
+                                                            {props?.view && (
+                                                                <Icon attr={App_url.Icon.Eye} title="Default tooltip" data-toggle="tooltip" onClick={(e)=>props?.onView(e, item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
+                                                            )}
+                                                            {props?.editURL && (
+                                                                <Icon attr={App_url.Icon.Edit} onClick={(e)=>props?.editURL(item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
+                                                            )}
+                                                            {props?.delete && (
+                                                                <Icon attr={App_url.Icon.Delete} onClick={(e)=>props?.onClickDelete(e, item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
+                                                            )}
                                                             </td>
-                                                        ))}
-                                                        <td>
-                                                        {props?.view && (
-                                                            <Icon attr={App_url.Icon.Eye} title="Default tooltip" data-toggle="tooltip" onClick={(e)=>props?.onView(e, item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
-                                                        )}
-                                                        {props?.editURL && (
-                                                            <Icon attr={App_url.Icon.Edit} onClick={(e)=>props?.editURL(item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
-                                                        )}
-                                                        {props?.delete && (
-                                                            <Icon attr={App_url.Icon.Delete} onClick={(e)=>props?.onClickDelete(e, item)}  button hover className={"xsm "} classNameButton={"rounded"}/>
-                                                        )}
-                                                        </td>
-                                                    </tr>
+                                                        </tr>
+                                                        <Collapse in={state === index?true:false}>
+                                                            <tr>
+                                                                <td colSpan={30} className='py-3 px-0'>
+                                                                    <table className='table m-0'>
+                                                                        <tbody>
+                                                                            {props?.collabeData?.map((item1, idx) => (
+                                                                                <React.Fragment key={idx}>
+                                                                                    <tr>
+                                                                                        {item1.map((item2, itemIdx) => (
+                                                                                            <React.Fragment key={itemIdx}>
+                                                                                                {itemIdx % 2 === 0 && (
+                                                                                                    <th className='col-2'>{item2}</th>
+                                                                                                )}
+                                                                                                {itemIdx % 2 === 1 && (
+                                                                                                    <td>
+                                                                                                        <TableItem recordKey={item2} index={index} item={item} />
+                                                                                                    </td>
+                                                                                                )}
+                                                                                            </React.Fragment>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                </React.Fragment>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </Collapse>
+                                                    </React.Fragment>
                                                 ))}
                                             </React.Fragment>
                                         ):(
@@ -129,6 +174,7 @@ const CustomTable = (props) => {
 
 CustomTable.propTypes = {
     recordData: PropTypes.array.isRequired,
+    collabeData: PropTypes.array,
     current_page: PropTypes.number.isRequired,
     columnNames: PropTypes.array.isRequired,
     dataItems: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -152,6 +198,7 @@ CustomTable.propTypes = {
 
 CustomTable.defaultProps = {
     recordData: [],
+    collabeData: [],
     current_page: 1,
     columnNames: [],
     dataItems: [],

@@ -76,14 +76,24 @@ body .button.btn:focus,body .button.btn:focus{
 .btn-icon:hover .common_icon{background-color: var(--text-hover-color);}
 .btn-icon .common_icon{--icon-height: 18px;--icon-width: 18px;}
 .btn-icon.btn-sm{---height: 30px;---width: 30px;}
+.btn-icon.border{border-color: #323d47 !important;}
+.btn-icon.xxsm{---height: 20px;---width: 20px;}
 .btn-icon.btn-sm .common_icon{--icon-height: 14px;--icon-width: 14px;}
+.btn-icon .xxsm.common_icon{--icon-height: 12px;--icon-width: 12px;}
 .btn-icon.btn-danger .common_icon{--text-primary-color:white}
 .position-right-center{position: absolute;right: 10px;}
 .btn-icon.btn-hover:hover{--bg-btn:grey!important}
 .d-flex-center{display: flex;align-items: center;}
+.r-180{rotate: 180deg;}
+.r-90{rotate: 90deg;}
 .CommonPagination{padding: 10px 10px;}
 .CommonPagination .page-item:last-child .page-link,.CommonPagination .page-item:first-child .page-link,.CommonPagination .page-item .page-link {
   border-radius: 50px
+}
+.table .collapse table th{
+border: 1px solid #dee2e6;
+font-weight: 600;
+color: #797d83;
 }
 
 .CommonPagination .page-item .page-link {border-radius: 50px;display: flex;align-items: center;line-height: 1;justify-content: center;min-height: 36px;min-width: 36px}
@@ -193,11 +203,17 @@ padding: var(--vz-nav-link-padding-y) var(--vz-nav-link-padding-x);}
 .content-body> .content, .content-inside{position: relative;}
 
 .spinContainer{
-  position: absolute;
+  position: fixed;
   top: 0px;
   width: 100%;
   height: 100%;
-  display: flex;align-items: center;justify-content: center;
+  left: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 240px;
+  padding-top: 70px;
+  background-color: #b1afac30;
 }
 .spinner {-webkit-animation: rotate 2s linear infinite;animation: rotate 2s linear infinite;z-index: 2;width: 40px;height: 40px;}
 .spinner .path {stroke: #93bfec;stroke-linecap: round;-webkit-animation: dash 1.5s ease-in-out infinite;animation: dash 1.5s ease-in-out infinite;}
@@ -212,3 +228,6 @@ padding: var(--vz-nav-link-padding-y) var(--vz-nav-link-padding-x);}
 
 .select-form .input-select__control .input-select__input-container {padding: 1px;}
 .select-form .input-select__menu .input-select__option{padding: 4px 12px;}
+
+.text-wrap{white-space: wrap;line-height: 1.5!important;}
+.table.text-wrap tr td, .table.text-wrap tr th{white-space: wrap;line-height: 1.3;}

@@ -52,7 +52,6 @@ export default function DeliveryForm(props) {
     useEffect(()=>{
         callGetCustomer();
         callGetTransporter();
-        callGetDeliveryMax();
         return () => {
             // Cancel the ongoing API request when the component unmounts or when dependencies change
             abortController.abort();
@@ -62,14 +61,31 @@ export default function DeliveryForm(props) {
           };      
     },[]);
     useEffect(()=>{
-        if(location?.state?.code){
+        console.log("location?.state", props?.deliveryDetails?.delivery_line)
+        if(location?.state?.no){
             setFormData((data)=>({
                 ...data,
                 ...location?.state,
-                invoice:location?.state?.invoice === "Y"?true:false
+                invoice:location?.state?.invoice === "Y"?true:false,
+                item_list:props?.deliveryDetails?.delivery_line
             }))
+        }else{
+            callGetDeliveryMax();
         }
-    },[location?.state?.code]);
+    },[location?.state?.no]);
+    function getCompanyPrefix(name) {
+        // Implement logic to get the first four letters of the company
+        // For example:
+        // Assuming the company name is stored somewhere accessible
+        const companyName = name; // Replace this with actual company name or retrieve dynamically
+        return companyName.substring(0, 4).toUpperCase();
+    }
+    function getRandomSixDigitNumber() {
+        const min = 100000; // Minimum value for a 6-digit number
+        const max = 999999; // Maximum value for a 6-digit number
+        return String(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
     const callGetDeliveryMax = async (Filter) =>{
         const payload = {
             request_type:App_url.API.GET_MAX_DELIVERY_ENTRY,
@@ -79,6 +95,7 @@ export default function DeliveryForm(props) {
             setFormData((data)=>({
                 ...data,
                 dcno: parseFloat(response?.data?.data?.dcno) + 1,
+                manual_dc: getRandomSixDigitNumber()
             }))
         }else{
 
@@ -134,7 +151,7 @@ export default function DeliveryForm(props) {
             response?.data?.data?.data?.map((item)=>{
                 list?.push({
                     ...item,
-                    label:item?.contactname,
+                    label:item?.company_name,
                     value:item?.id
                 })
             });
@@ -143,19 +160,27 @@ export default function DeliveryForm(props) {
             setSelectSubunit([{label:"Select Sub Unit", value:"", isDisabled:true}])
           }
     }
-    const onChange = (e) =>{
+    const onChange = (e, data) =>{
         if(e.target.type == "checkbox"){
             setFormData((data)=>({
                 ...data,
                 [e.target.name]:e.target.checked,
             }))
         }else{
+            const oldData = formData;
             if(e.target.name == "cust_code"){
                 getSubUnitList(e.target.value);
+                console.log("data", data)
+                oldData.cust_sub_unit_code = ""
+                oldData.customer_name = data?.name;
             }
-            console.log("item", e.target)
-            setFormData((data)=>({
-                ...data,
+            if(e.target?.item_code){
+                return CallAddVariation(data);
+            }
+            console.log("item", e.target?.item_code)
+            setFormData((data1)=>({
+                ...data1,
+                ...oldData,
                 [e.target.name]:e.target.value,
             }))
         }
@@ -168,26 +193,30 @@ export default function DeliveryForm(props) {
         let val = true;
         const error = {};
         formData?.map((inputValue, index)=>{
-            if(parseFloat(inputValue?.price) <= parseFloat(inputValue?.cost_price)){
-                error[`price${index}`] = "The selling price should be greater than the cost price."
+            if(parseFloat(inputValue?.total_amount) <= parseFloat(inputValue?.cost_price)){
+                error[`total_amount${index}`] = "The selling price should be greater than the cost price."
                 val = false;
             }
-            if(inputValue?.item === ""){
-                error[`item${index}`] = "The item field is required."
+            if(inputValue?.product_name === "" || !inputValue?.product_name){
+                error[`product_name${index}`] = "The item field is required."
                 val = false;
             }
-            if(inputValue?.quantity === ""){
+            if(inputValue?.quantity === "" || !inputValue?.quantity){
                 error[`quantity${index}`] = "The quantity field is required."
                 val = false;
             }
-            if(inputValue?.quantity_volume === ""){
-                error[`quantity_volume${index}`] = "The qty volume field is required."
+            if(inputValue?.total_amount === "" || !inputValue?.total_amount){
+                error[`total_amount${index}`] = "The qty volume field is required."
                 val = false;
             }
-            if(inputValue?.line_total === ""){
-                error[`line_total${index}`] = "The total field is required."
+            if(inputValue?.rate === "" || !inputValue?.rate){
+                error[`rate${index}`] = "The rate volume field is required."
                 val = false;
             }
+            // if(inputValue?.line_total === ""){
+            //     error[`line_total${index}`] = "The total field is required."
+            //     val = false;
+            // }
         });
         return {error:error, val:val};
     }
@@ -213,10 +242,10 @@ export default function DeliveryForm(props) {
             error.transport_type = "Please provide transport type";
             val = false;
         }
-        if(formData?.manual_dc == ""){
-            error.manual_dc = "Please provide manual dc";
-            val = false;
-        }
+        // if(formData?.manual_dc == ""){
+        //     error.manual_dc = "Please provide manual dc";
+        //     val = false;
+        // }
         if(formData?.remarks == ""){
             error.remarks = "Please provide remarks";
             val = false;
@@ -233,7 +262,10 @@ export default function DeliveryForm(props) {
         if(formData?.item_list?.length>0){
             const errors = variationError(formData?.item_list);
             error.item_list = errors?.error;
+            console.log("errors", errors)
             val = errors?.val;
+        }else{
+            val = false;
         }
         setError((data)=>({
             ...data,
@@ -272,42 +304,49 @@ export default function DeliveryForm(props) {
         if(formData?.pono){
             payload.pono = formData?.pono;
         }
-        if(formData?.item_list){
-            payload.item_list = formData?.item_list?.map((item)=>({
-                ...item,
-                item:item?.item,
-                quantity:parseFloat(item?.quantity),
-                quantity_volume:parseFloat(item?.quantity_volume),
-                line_total:parseFloat(item?.line_total),
-                line_tax:parseFloat(item?.line_tax),
-                line_tax_rate:parseFloat(item?.line_tax_rate),
-                rate:parseFloat(item?.rate),
-            }));
+        if(formData?.customer_name && !location?.state?.no){
+            // payload.manual_dc = getCompanyPrefix(formData?.customer_name)+formData?.manual_dc;
+            payload.manual_dc = getCompanyPrefix(formData?.customer_name);
         }
-        
-        return payload;
+        const delivery_item = formData?.item_list?.map((item)=>({
+            ...item,
+            quantity:parseFloat(item?.quantity),
+            pack_size:item?.pack_size ? parseFloat(item?.pack_size):0,
+            rate:parseFloat(item?.rate),
+            total_amount:parseFloat(item?.total_amount),
+        }));
+        if(!location?.state?.no){
+            if(formData?.item_list){
+                payload.item_list = delivery_item;
+            }
+            return payload;
+        }else{
+            return {
+                updatedDetailsMain: payload,
+                updated_details_line: delivery_item,
+                no: location?.state?.no,
+            }
+        }
     }
     const onSubmit = async (e) =>{
         e.preventDefault();
         if(validation()){
             const payload = getPayloadCustomer(formData);
-            if(location?.state?.code){
-                payload.request_type = App_url?.API?.UPDATE_CUSTOMER;
-                payload.updated_details = getPayloadCustomer(formData);
+            console.log("payload", payload)
+            if(location?.state?.no){
+                payload.request_type = App_url?.API?.UPDATE_DELIVERY;
+                // payload.updated_details = getPayloadCustomer(formData);
             }else{
                 payload.request_type = App_url?.API?.ADD_DELIVERY;
             }
-            console.log("payload", payload)
+            // console.log("payload", payload)
             const response = await PostRequestCallAPI(App_url?.API.DELIVERY,payload);
             if(response?.status === 200){
                 toast.success(response?.data?.message);
                 navigate(App_url?.DcEntry)
             }else{
-                if(response?.data?.error){
-                    toast.success(response?.data?.error);
-                }
+                App_url.requestValidate(response);
             }
-            console.log("response", payload)
         }
     }
     const fetchMasterItem = async (e) =>{
@@ -340,6 +379,19 @@ export default function DeliveryForm(props) {
             master_item:e
         }));
     }
+    const CallAddVariation =(item)=>{
+        const variation = formData?.item_list?.length<=0?[]:formData?.item_list;
+        const payload = {...item, line_no:"", item_type:item?.type}
+        if(location?.state?.no){
+            payload.dcno = location?.state?.no;
+        }
+        delete payload.srno;
+        variation.push(payload);
+        setFormData((data)=>({
+          ...data,
+          item_list:variation,
+        }))
+      }
 
   return (
     <div className="card">
@@ -356,7 +408,7 @@ export default function DeliveryForm(props) {
                     name={"dcno"}
                     required
                 />
-                <InputGroup
+                {/* <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Manual Delivery No."}
                     placeholder={"Manual Delivery No."}
@@ -365,7 +417,7 @@ export default function DeliveryForm(props) {
                     error={error?.manual_dc}
                     name={"manual_dc"}
                     required
-                />
+                /> */}
                 <InputGroup
                     formClassName={"col-12 col-lg-4 col-sm-6"}
                     label={"Transporter"}
@@ -438,24 +490,22 @@ export default function DeliveryForm(props) {
                         formClassName={"col-12 col-lg-4 col-sm-6"}
                         label={"Master Item"}
                         placeholder={"Master Item"}
-                        type='select'
+                        type={'select'}
                         onChange={onChange}
                         onInput={onInput}
                         inputValue={formData?.master_item}
-                        value={formData?.master_item}
                         error={error?.master_item}
                         name={"master_item"}
                         option={MasterSelect}
-                        required
                         Select
                     />
                 </div>
                 <div className='col-12'>
-                    <ItemList formData={formData} setFormData={setFormData} error={error?.item_list} setError={setError} />
+                    <ItemList formData={formData} dc_no={location?.state?.no} setFormData={setFormData} error={error?.item_list} setError={setError} />
                 </div>
                 <div className='col-12 d-flex align-item-center justify-content-end gap-2 pt-3 pb-3'>
                     <Button type={"submit"} onClick={onSubmit} variant={"primary"} size={"sm"}>{props?.submitTitle}</Button>
-                    <Button variant={"outline-danger"} size={"sm"}>Cancel</Button>
+                    <Button variant={"outline-danger"} onClick={()=>navigate(App_url.DcEntry)} size={"sm"}>Cancel</Button>
                 </div>
             </form>
         </div>
@@ -464,9 +514,11 @@ export default function DeliveryForm(props) {
 }
 DeliveryForm.propTypes = {
     title: PropTypes.any,
-    submitTitle: PropTypes.array
+    submitTitle: PropTypes.array,
+    deliveryDetails: PropTypes.array
 }
 DeliveryForm.defaultProps = {
     title:"Add Delivery Challan",
-    submitTitle:"Add Delivery Challan"
+    submitTitle:"Add Delivery Challan",
+    deliveryDetails: null
 }

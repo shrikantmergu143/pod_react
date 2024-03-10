@@ -80,10 +80,18 @@ export default function DeliveryEntryPage() {
                 </ol>
             </nav>
         </div>
-
+        {console.log("deliveryList", deliveryList)}
         <CustomTable
-            recordData={['ID', 'dcno', 'warehouse', 'email',  'payment_status', 'timestamp']}
-            columnNames={['ID', 'Delivery No', 'warehouse', 'email',  'status', 'Date']}
+            recordData={['ID', 'dcno', 'customer.name', 'transporter.name', 'transport_amt', 'timestamp']}
+            columnNames={['ID', 'Delivery No', 'customer', 'transporter', 'transport amount',  'Date']}
+            collabeData={[
+                ['Manual Dc', 'manual_dc'],
+                ['Po.no', 'pono'],
+                ['Contact person', 'customer_contact.contactname'],
+                ['Contact Address', 'customer_contact.unit_address'],
+                ['Transporter Contact', 'transporter.phone1'],
+                ['Transporter Address', 'transporter.address'],
+            ]}
             dataItems={deliveryList?.data}
             pagination={deliveryList}
             current_page={deliveryList?.current_page}

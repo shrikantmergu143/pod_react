@@ -4,3 +4,8 @@
 .table.table-sm td, .table.table-sm th{
     font-size: 13px;
 }
+.table.table-sm.font-sm td, .table.table-sm.font-sm th{
+    font-size: 11px;
+}
+.text-underline{text-decoration: underline;}
+.bold{font-weight: bold;}
