@@ -95,9 +95,9 @@ const App_url = {
     Home: "/",
     AddSubUnit: "/customer/view",
     EditSubUnit: "/customer/view",
-    API_URL: "http://pod.arnichem.co.in/api",
+    // API_URL: "http://pod.arnichem.co.in/api",
     // API_URL: "http://arnichem.co.in/pod/api",
-    // API_URL: "http://localhost/projects/api",
+    API_URL: "http://localhost/projects/api",
     API:{
         CUSTOMER: "CustomerOperation.php",
         TRANSPORTER: "TransporterOperation.php",

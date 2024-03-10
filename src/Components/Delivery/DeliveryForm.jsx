@@ -62,7 +62,7 @@ export default function DeliveryForm(props) {
     },[]);
     useEffect(()=>{
         console.log("location?.state", props?.deliveryDetails?.delivery_line)
-        if(location?.state?.no){
+        if(location?.state?.no || props?.deliveryDetails?.delivery_line){
             setFormData((data)=>({
                 ...data,
                 ...location?.state,
@@ -72,7 +72,7 @@ export default function DeliveryForm(props) {
         }else{
             callGetDeliveryMax();
         }
-    },[location?.state?.no]);
+    },[location?.state?.no, props?.deliveryDetails?.delivery_line]);
     function getCompanyPrefix(name) {
         // Implement logic to get the first four letters of the company
         // For example:

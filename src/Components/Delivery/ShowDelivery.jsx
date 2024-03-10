@@ -43,6 +43,7 @@ export default function ShowDelivery() {
         deliveryDetails?.delivery_line?.map((item)=>{
             qty = qty + parseFloat(item?.quantity);
             qty_value = qty_value + parseFloat(item?.rate);
+            total_amount = total_amount + (parseFloat(item?.quantity) * parseFloat(item?.rate));
             if(item?.item_type === "oil"){
                 total_pack = total_pack + (item?.pack_size * item?.quantity)
             }
@@ -52,7 +53,7 @@ export default function ShowDelivery() {
             qty: qty,
             qty_value: qty_value,
             total_pack: total_pack,
-            total_amount: deliveryDetails?.delivery?.transport_amt
+            total_amount: total_amount
         }
     }
     const DateFormat = (dateString) =>{
