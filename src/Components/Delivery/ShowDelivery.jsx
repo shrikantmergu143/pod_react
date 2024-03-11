@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
@@ -40,20 +41,24 @@ export default function ShowDelivery() {
         let qty = 0;
         let total_pack = 0;
         let qty_value = 0;
+        let pack_size = 0;
         deliveryDetails?.delivery_line?.map((item)=>{
             qty = qty + parseFloat(item?.quantity);
             qty_value = qty_value + parseFloat(item?.rate);
             total_amount = total_amount + (parseFloat(item?.quantity) * parseFloat(item?.rate));
-            if(item?.item_type === "oil"){
+            if(item?.item_type == "oil" || item?.item_type == "Oil") {
                 total_pack = total_pack + (item?.pack_size * item?.quantity)
-            }
+                pack_size = pack_size + parseFloat(item?.pack_size);
+                console.log("item?.pack_size", item?.pack_size)
+            };
         });
-        console.log("qty_value", qty_value)
+        console.log("qty_value", qty_value, pack_size, deliveryDetails?.delivery_line)
         return {
             qty: qty,
             qty_value: qty_value,
             total_pack: total_pack,
-            total_amount: total_amount
+            total_amount: total_amount,
+            pack_size: pack_size
         }
     }
     const DateFormat = (dateString) =>{
@@ -256,7 +261,7 @@ export default function ShowDelivery() {
                         <span className='td-column'>APPX VALUE</span>
                     </td>
                     <td  className=' border-x'>
-                        <span className='td-column'>{itemTotal?.qty_value}</span>
+                        <span className='td-column'>{parseFloat(itemTotal?.total_amount).toFixed(2)}</span>
                     </td>
                     <td  className=' border-x'>
                         <span className='td-column'>Total</span>
