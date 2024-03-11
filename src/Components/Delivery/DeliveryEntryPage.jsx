@@ -82,7 +82,7 @@ export default function DeliveryEntryPage() {
         </div>
         {console.log("deliveryList", deliveryList)}
         <CustomTable
-            recordData={['ID', 'dcno', 'customer.name', 'transporter.name', 'transport_amt', 'timestamp']}
+            recordData={['ID', 'manual_dc', 'customer.name', 'transporter.name', 'transport_amt', 'timestamp']}
             columnNames={['ID', 'Delivery No', 'customer', 'transporter', 'transport amount',  'Date']}
             collabeData={[
                 ['Manual Dc', 'manual_dc'],

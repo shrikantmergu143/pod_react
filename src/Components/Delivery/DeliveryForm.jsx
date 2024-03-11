@@ -485,7 +485,7 @@ export default function DeliveryForm(props) {
                     name={"pono"}
                     required
                 />
-                <div className='row'>
+                <div className='row m-0 p-0'>
                     <InputGroup
                         formClassName={"col-12 col-lg-4 col-sm-6"}
                         label={"Master Item"}

@@ -70,8 +70,8 @@ export default function ItemListContent(props) {
                     type='number'
                     readOnly
                     required
-                />
-                <Icon onClick={props?.deleteVariation} button className={"sm "} classNameButton={"btn-danger position-right-center"} attr={App_url.Icon.Delete}/>
+                />{console.log("formData?.srno", formData?.srno)}
+                <Icon disable={formData?.srno ? true:false} onClick={props?.deleteVariation} button className={"sm "} classNameButton={"btn-danger position-right-center"} attr={App_url.Icon.Delete}/>
             </div>
         </div>
     </div>

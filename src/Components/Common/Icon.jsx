@@ -9,7 +9,7 @@ export default function Icon(props) {
     }
     const ButtonIcon = () =>{
       return(
-        <button onClick={props?.onClick} title={props?.title} data-toggle="tooltip" className={`btn btn-icon btn-${props?.hover?"hover":""} btn-${props?.size} ${props?.classNameButton}`}>
+        <button onClick={props?.onClick} disabled={props?.disable} title={props?.title} data-toggle="tooltip" className={`btn btn-icon btn-${props?.hover?"hover":""} btn-${props?.size} ${props?.classNameButton}`}>
             {IconAttr()}
         </button>
       )
@@ -32,7 +32,8 @@ Icon.propTypes = {
   attr: PropTypes.any,
   title: PropTypes.any,
   onClick: PropTypes.func,
-  hover: PropTypes.bool
+  hover: PropTypes.bool,
+  disable: PropTypes.bool,
 }
 Icon.defaultProps = {
   className:"",
@@ -41,6 +42,7 @@ Icon.defaultProps = {
   active:false,
   circle:false,
   hover:false,
+  disable:false,
   attr: "",
   title: "",
   onClick: ()=>{},
